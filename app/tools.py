@@ -24,6 +24,12 @@ HISTORICAL_MEMOS = [
         "key": "Meals",
         "description": "Per-diem travel meal overages for David Wu",
         "reason": "Pre-authorization approved for David Wu for supplier dinner overage up to $250.00."
+    },
+    {
+        "id": "MEMO-MIGRATION-RATE-2025",
+        "key": "ConsultingCorp",
+        "description": "Emergency weekend migration support rate approval",
+        "reason": "A temporary rate of $180/hour was approved for emergency weekend migration support during Q4 2025."
     }
 ]
 

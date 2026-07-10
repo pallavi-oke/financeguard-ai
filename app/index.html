@@ -751,13 +751,15 @@
               <!-- Left: evidence retrieved documents -->
               <div>
                 <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #fff;">Retrieved Evidence Sources</h3>
-                <div class="source-box">
-                  <h5 id="policy-label">Policy Documentation</h5>
-                  <p id="policy-content">Awaiting investigation run...</p>
-                </div>
-                <div class="source-box">
-                  <h5 id="history-label">Historical Explanations / Contracts</h5>
-                  <p id="history-content">Awaiting investigation run...</p>
+                <div id="evidence-sources-list">
+                  <div class="source-box">
+                    <h5 id="policy-label">Policy Documentation</h5>
+                    <p id="policy-content">Awaiting investigation run...</p>
+                  </div>
+                  <div class="source-box">
+                    <h5 id="history-label">Historical Explanations / Contracts</h5>
+                    <p id="history-content">Awaiting investigation run...</p>
+                  </div>
                 </div>
                 <div class="source-box" style="margin-top: 1rem;">
                   <h5>Retrieved Evidence Registry Snapshot</h5>
@@ -1297,14 +1299,70 @@ export OTEL_SERVICE_NAME="finance-control-center"</code></pre>
         failuresList.appendChild(li);
       });
       
-      document.getElementById("policy-content").innerText = item.policy;
-      document.getElementById("history-content").innerText = item.history;
+      const sourcesList = document.getElementById("evidence-sources-list");
+      sourcesList.innerHTML = "";
       
-      const policyLabelMap = { CLOSE: "Corporate Ledger & SOX Policy Manual", BILLING: "Vendor Master Contract Agreements", EXPENSE: "T&E Travel Policy TE-302" };
-      document.getElementById("policy-label").innerText = policyLabelMap[activeModule];
-      
-      const historyLabelMap = { CLOSE: "Historical Memos Database", BILLING: "Purchase Order Data", EXPENSE: "Pre-approved Travel Exception Files" };
-      document.getElementById("history-label").innerText = historyLabelMap[activeModule];
+      if (activeModule === "BILLING" && id === "INV-2001") {
+        // Render three high-fidelity cards for the Billing hero case
+        
+        // Card 1: Invoice details
+        const invoiceCard = document.createElement("div");
+        invoiceCard.className = "source-box";
+        invoiceCard.innerHTML = `
+          <h5>Invoice (INV-2001)</h5>
+          <p><strong>Billed Rate:</strong> $180.00 / hour &nbsp;|&nbsp; <strong>Hours Billed:</strong> 100 hrs &nbsp;|&nbsp; <strong>Total Amount:</strong> $18,000.00<br/>
+          <strong>Description:</strong> Q2 migration support &nbsp;|&nbsp; <strong>Vendor:</strong> ConsultingCorp</p>
+        `;
+        sourcesList.appendChild(invoiceCard);
+        
+        // Card 2: Active Contract
+        const contractCard = document.createElement("div");
+        contractCard.className = "source-box";
+        contractCard.style.marginTop = "1rem";
+        contractCard.innerHTML = `
+          <h5>Active Contract (CON-CONSULTINGCORP-2026)</h5>
+          <p><strong>Contracted Rate:</strong> $150.00 / hour &nbsp;|&nbsp; <strong>Status:</strong> ACTIVE<br/>
+          <strong>Effective:</strong> 2026-01-01 to 2026-12-31 &nbsp;|&nbsp; <strong>Scope:</strong> Standard consulting services</p>
+        `;
+        sourcesList.appendChild(contractCard);
+        
+        // Card 3: Historical Exception Memo with badge
+        const memoCard = document.createElement("div");
+        memoCard.className = "source-box";
+        memoCard.style.marginTop = "1rem";
+        memoCard.innerHTML = `
+          <h5 style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span>Historical Exception Memo (MEMO-MIGRATION-RATE-2025)</span>
+            <span class="tag tag-danger" style="font-size: 0.7rem; padding: 0.15rem 0.4rem; white-space: nowrap; margin-left: 0.5rem;">Historical context — not current authorization</span>
+          </h5>
+          <p><strong>Approved Rate:</strong> $180.00 / hour &nbsp;|&nbsp; <strong>Active Period:</strong> Q4 2025 (Expired)<br/>
+          <strong>Approved Scope:</strong> Emergency weekend migration support<br/>
+          <strong>Text:</strong> "A temporary rate of $180/hour was approved for emergency weekend migration support during Q4 2025."</p>
+        `;
+        sourcesList.appendChild(memoCard);
+        
+      } else {
+        // Standard two-card layout
+        const policyLabelMap = { CLOSE: "Corporate Ledger & SOX Policy Manual", BILLING: "Vendor Master Contract Agreements", EXPENSE: "T&E Travel Policy TE-302" };
+        const historyLabelMap = { CLOSE: "Historical Memos Database", BILLING: "Purchase Order Data", EXPENSE: "Pre-approved Travel Exception Files" };
+        
+        const card1 = document.createElement("div");
+        card1.className = "source-box";
+        card1.innerHTML = `
+          <h5>${policyLabelMap[activeModule]}</h5>
+          <p>${item.policy || "Awaiting investigation run..."}</p>
+        `;
+        sourcesList.appendChild(card1);
+        
+        const card2 = document.createElement("div");
+        card2.className = "source-box";
+        card2.style.marginTop = "1rem";
+        card2.innerHTML = `
+          <h5>${historyLabelMap[activeModule]}</h5>
+          <p>${item.history || "Awaiting investigation run..."}</p>
+        `;
+        sourcesList.appendChild(card2);
+      }
       
       document.getElementById("specialist-agent-label").innerText = `${item.agent} report`;
       document.getElementById("hypothesis-text").innerText = item.hypothesis;
@@ -1413,6 +1471,16 @@ export OTEL_SERVICE_NAME="finance-control-center"</code></pre>
       btnReject.style.cursor = cursorVal;
       btnRequest.style.opacity = opacityVal;
       btnRequest.style.cursor = cursorVal;
+      
+      // Pre-emphasize Request Support Document for the hero exception case
+      if (id === "INV-2001" && !isPending) {
+        btnRequest.style.boxShadow = "0 0 12px rgba(99, 102, 241, 0.6)";
+        btnRequest.style.borderColor = "var(--primary)";
+      } else {
+        btnRequest.style.boxShadow = "none";
+        btnRequest.style.borderColor = "var(--card-border)";
+      }
+      
       humanNotes.style.opacity = opacityVal;
       submitBtn.style.opacity = opacityVal;
       submitBtn.style.cursor = cursorVal;

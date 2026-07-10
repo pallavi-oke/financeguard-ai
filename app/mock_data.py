@@ -139,6 +139,16 @@ EVIDENCE_REGISTRY = {
     "MEMO-DISTRACTOR-DELL": {
         "source_type": "historical_memo",
         "content": "Memo concerns unrelated transaction: Laptop purchase authorization exception for Emily Davis from 2025."
+    },
+    "MEMO-MIGRATION-RATE-2025": {
+        "source_type": "historical_memo",
+        "vendor": "ConsultingCorp",
+        "approved_rate": 180,
+        "scope": "Emergency weekend migration support",
+        "effective_from": "2025-10-01",
+        "effective_to": "2025-12-31",
+        "applies_to_current_invoice": False,
+        "content": "A temporary rate of $180/hour was approved for emergency weekend migration support during Q4 2025."
     }
 }
 
@@ -226,7 +236,7 @@ MOCK_INVOICES = [
         "po_number": "PO-9002",
         "unit_price": 180.00,  # Billed $180, contract rate is $150
         "posting_date": "2026-07-02T13:45:00",
-        "description": "PM hours - Q2 milestone",
+        "description": "Q2 migration support",
         "source_id": "TX-INV-2001"
     },
     {

@@ -156,6 +156,18 @@ def check_evidence_sufficiency(tx: dict, snapshot: dict) -> list[str]:
         if not tx.get("po_number"):
             missing.append("po_number (Purchase Order Reference)")
             
+        # Check if billed rate exceeds contract rate and require current amendment or override
+        po_rate = tx.get("unit_price")
+        for k, v in snapshot.items():
+            if v.get("source_type") == "contract" and v.get("vendor", "").lower() == vendor.lower():
+                contract_rate = v.get("contracted_rate_usd", 0.0)
+                if po_rate is not None and contract_rate and po_rate > contract_rate:
+                    has_current_override = any("AMENDMENT" in key or "OVERRIDE" in key for key in snapshot.keys())
+                    if not has_current_override:
+                        missing.append("Invoice rate exceeds active contract rate.")
+                        missing.append("Historical exception does not establish current authorization.")
+                        missing.append("Current amendment or invoice-specific override is missing.")
+            
     elif tx_type == "EXPENSE_REPORT":
         if "POL-MEAL" not in snapshot and "POL-RECEIPT" not in snapshot:
             missing.append("POL-MEAL or POL-RECEIPT (T&E Guidelines)")
@@ -258,7 +270,23 @@ def run_governance_gate(
         triggered_controls.append("MATERIAL_POSTING_CONTROL")
         
     passed = len(failures) == 0
-    action = "AUTO_APPROVE" if passed else "ESCALATE_TO_HUMAN"
+    action = "AUTO_APPROVE"
+    if not passed:
+        spec_rec = specialist_res.get("recommendation")
+        if spec_rec == "REQUEST_DOCUMENTS":
+            action = "REQUEST_DOCUMENTS"
+            if tx.get("tx_type") == "BILLING_INVOICE":
+                po_rate = tx.get("unit_price")
+                for k, v in (evidence_bundle or {}).items():
+                    if v.get("source_type") == "contract" and v.get("vendor", "").lower() == tx.get("vendor", "").lower():
+                        contract_rate = v.get("contracted_rate_usd", 0.0)
+                        if po_rate is not None and contract_rate and po_rate > contract_rate:
+                            if "CONTRACT_RATE_VARIANCE" not in triggered_controls:
+                                triggered_controls.append("CONTRACT_RATE_VARIANCE")
+                            if "MISSING_CURRENT_RATE_AUTHORIZATION" not in triggered_controls:
+                                triggered_controls.append("MISSING_CURRENT_RATE_AUTHORIZATION")
+        else:
+            action = "ESCALATE_TO_HUMAN"
     
     return {
         "passed": passed,

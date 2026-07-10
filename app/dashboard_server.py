@@ -163,31 +163,71 @@ async def investigate_exception(transaction_id: str):
                 "rationale": "Must escalate to human due to direct SOX control violation."
             }
         elif spec_name == "billing_specialist":
-            specialist_res = {
-                "facts": [
-                    {
-                        "claim_id": "FACT-01",
-                        "claim": "Billed invoice price exceeds contract flat rate of $150.00.",
-                        "claim_type": "TRANSACTION_FACT",
-                        "evidence_refs": [
-                            {"source_id": f"TX-{transaction_id}", "source_type": "transaction", "source_field": "unit_price"},
-                            {"source_id": "CON-CONSULTINGCORP-2026", "source_type": "contract", "source_excerpt": "$150.00/hour"}
-                        ]
-                    }
-                ],
-                "hypotheses": [
-                    {
-                        "hypothesis_id": "HYP-01",
-                        "statement": "Billed consulting hours matched rate cap conflicts in PO pricing.",
-                        "basis_source_ids": [f"TX-{transaction_id}"],
-                        "uncertainty": "Requires checking if rates changed in subsequent PO adjustments."
-                    }
-                ],
-                "missing_evidence": [],
-                "confidence": "HIGH",
-                "recommendation": "VENDOR_DISPUTE",
-                "rationale": "Overbilling violates pricing agreement."
-            }
+            if transaction_id == "INV-2001":
+                specialist_res = {
+                    "facts": [
+                        {
+                            "claim_id": "FACT-01",
+                            "claim": "INV-2001 bills ConsultingCorp at $180 per hour.",
+                            "claim_type": "TRANSACTION_FACT",
+                            "evidence_refs": [{"source_id": "TX-INV-2001", "source_type": "transaction", "source_field": "unit_rate"}]
+                        },
+                        {
+                            "claim_id": "FACT-02",
+                            "claim": "The active contract rate is $150 per hour.",
+                            "claim_type": "CONTRACT_FACT",
+                            "evidence_refs": [{"source_id": "CON-CONSULTINGCORP-2026", "source_type": "contract", "source_field": "hourly_rate"}]
+                        },
+                        {
+                            "claim_id": "FACT-03",
+                            "claim": "A historical $180 per hour exception existed for emergency weekend migration support in Q4 2025.",
+                            "claim_type": "HISTORICAL_CONTEXT",
+                            "evidence_refs": [{"source_id": "MEMO-MIGRATION-RATE-2025", "source_type": "historical_memo"}]
+                        }
+                    ],
+                    "hypotheses": [
+                        {
+                            "hypothesis_id": "HYP-01",
+                            "statement": "The vendor may have applied the prior migration-support rate to the current invoice.",
+                            "basis_source_ids": ["TX-INV-2001", "MEMO-MIGRATION-RATE-2025"],
+                            "uncertainty": "The available evidence does not show that the prior exception applies to this invoice."
+                        }
+                    ],
+                    "missing_evidence": [
+                        "Current contract amendment authorizing $180 per hour",
+                        "Invoice-specific rate override",
+                        "Evidence that the work qualifies as emergency weekend migration support"
+                    ],
+                    "confidence": "MEDIUM",
+                    "recommendation": "REQUEST_DOCUMENTS",
+                    "rationale": "The rate mismatch is confirmed, but applicability of the historical exception is unresolved."
+                }
+            else:
+                specialist_res = {
+                    "facts": [
+                        {
+                            "claim_id": "FACT-01",
+                            "claim": "Billed invoice price exceeds contract flat rate of $150.00.",
+                            "claim_type": "TRANSACTION_FACT",
+                            "evidence_refs": [
+                                {"source_id": f"TX-{transaction_id}", "source_type": "transaction", "source_field": "unit_price"},
+                                {"source_id": "CON-CONSULTINGCORP-2026", "source_type": "contract", "source_excerpt": "$150.00/hour"}
+                            ]
+                        }
+                    ],
+                    "hypotheses": [
+                        {
+                            "hypothesis_id": "HYP-01",
+                            "statement": "Billed consulting hours matched rate cap conflicts in PO pricing.",
+                            "basis_source_ids": [f"TX-{transaction_id}"],
+                            "uncertainty": "Requires checking if rates changed in subsequent PO adjustments."
+                        }
+                    ],
+                    "missing_evidence": [],
+                    "confidence": "HIGH",
+                    "recommendation": "VENDOR_DISPUTE",
+                    "rationale": "Overbilling violates pricing agreement."
+                }
         else: # expense_specialist
             specialist_res = {
                 "facts": [
@@ -230,10 +270,13 @@ async def investigate_exception(transaction_id: str):
             "claim_checks": claim_checks,
             "unsupported_claims": [],
             "contradicted_claims": [],
-            "missing_evidence": [],
+            "missing_evidence": [] if transaction_id != "INV-2001" else [
+                "Current authorization for the $180 per hour rate",
+                "Evidence that the current work falls within the historical exception scope"
+            ],
             "invalid_source_references": [],
-            "confidence_score": 0.98,
-            "reasons": "All facts successfully grounded in registry snapshot."
+            "confidence_score": 0.98 if transaction_id != "INV-2001" else 0.95,
+            "reasons": "All facts successfully grounded in registry snapshot." if transaction_id != "INV-2001" else "The specialist's claims are grounded, but the case remains unresolved because current authorization is missing."
         }
         
         coord_res = {
