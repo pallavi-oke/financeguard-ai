@@ -28,7 +28,7 @@ if os.environ.get("GOOGLE_API_KEY"):
     os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "False"
 else:
     os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
-    os.environ["GOOGLE_CLOUD_LOCATION"] = "us-east1"
+    os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
     try:
         _, project_id = google.auth.default()
         os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
