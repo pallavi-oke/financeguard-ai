@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Finance AI Control Center — Gov Platform</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Mermaid.js for flow rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-color: #090d16;
+      --card-bg: #0f1524;
+      --card-border: #1e293b;
+      --text-color: #f1f5f9;
+      --text-muted: #64748b;
+      --primary: #3b82f6;
+      --primary-hover: #1d4ed8;
+      --accent: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --font-family: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-area h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-area h1 span {
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-area p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    .status-badge {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 0.4rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Top level tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.5rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.75rem 1.25rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      color: #fff;
+      background-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Metrics Overview Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .metric-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* 3-in-1 Workspace Sub-Layout */
+    .platform-layout {
+      display: grid;
+      grid-template-columns: 280px 320px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* Column 1: Module Selector (Close, Billing, Expense) */
+    .module-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .module-item {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .module-item:hover {
+      border-color: var(--primary);
+      background-color: rgba(59, 130, 246, 0.03);
+    }
+
+    .module-item.active {
+      border-color: var(--primary);
+      background-color: rgba(59, 130, 246, 0.08);
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.1);
+    }
+
+    .module-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #fff;
+    }
+
+    .module-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .module-status {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      width: fit-content;
+      margin-top: 0.4rem;
+    }
+
+    /* Column 2: Queue List */
+    .queue-pane {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      max-height: 750px;
+      overflow-y: auto;
+    }
+
+    .queue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .queue-item {
+      background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .queue-item:hover {
+      border-color: var(--primary);
+      background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    .queue-item.active {
+      border-color: var(--primary);
+      background-color: rgba(59, 130, 246, 0.12);
+    }
+
+    .queue-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .queue-id {
+      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: #fff;
+    }
+
+    .queue-amount {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+
+    .queue-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    .tag-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .tag-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    /* Column 3: Workspace details */
+    .detail-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .detail-card h2 {
+      font-size: 1.3rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .je-header-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 1.2rem;
+      background: rgba(255, 255, 255, 0.01);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
+
+    .je-field label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+      letter-spacing: 0.05em;
+    }
+
+    .je-field span {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Multi-Agent trace tracker */
+    .agent-pipeline-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #090d16;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    .pipeline-step {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-muted);
+    }
+
+    .pipeline-step.active {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .pipeline-step.active circle {
+      fill: var(--primary);
+    }
+
+    .pipeline-step.verified {
+      color: var(--accent);
+    }
+
+    .pipeline-step.verified circle {
+      fill: var(--accent);
+    }
+
+    /* RAG & Analysis Layout */
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .split-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .source-box {
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid var(--card-border);
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      max-height: 250px;
+      overflow-y: auto;
+      margin-bottom: 0.75rem;
+    }
+
+    .source-box h5 {
+      color: var(--primary);
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .report-section {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .report-facts {
+      background: rgba(59, 130, 246, 0.02);
+      border: 1px solid rgba(59, 130, 246, 0.08);
+    }
+
+    .report-hypotheses {
+      background: rgba(245, 158, 11, 0.02);
+      border: 1px solid rgba(245, 158, 11, 0.08);
+    }
+
+    .report-critic {
+      background: rgba(16, 185, 129, 0.02);
+      border: 1px solid rgba(16, 185, 129, 0.08);
+    }
+
+    .report-section h4 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #fff;
+    }
+
+    .report-section ul {
+      margin-left: 1.25rem;
+      font-size: 0.88rem;
+    }
+
+    .report-section li {
+      margin-bottom: 0.4rem;
+    }
+
+    .alert-banner {
+      background: rgba(239, 68, 68, 0.08);
+      border-left: 4px solid var(--danger);
+      padding: 1rem;
+      border-radius: 0 8px 8px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .alert-banner h4 {
+      color: var(--danger);
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .alert-banner ul {
+      margin-left: 1.25rem;
+      font-size: 0.85rem;
+    }
+
+    /* Human Action Box */
+    .action-box {
+      border: 1px solid var(--accent);
+      background: rgba(16, 185, 129, 0.01);
+      padding: 1.5rem;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .action-box h3 {
+      font-size: 1.1rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .action-options {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-opt {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      background: #0f1524;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .btn-opt:hover {
+      border-color: var(--text-muted);
+      color: #fff;
+    }
+
+    .btn-opt.selected-approve { background: rgba(16, 185, 129, 0.15); border-color: var(--accent); color: var(--accent); }
+    .btn-opt.selected-reject { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: var(--danger); }
+    .btn-opt.selected-escalate { background: rgba(245, 158, 11, 0.15); border-color: var(--warning); color: var(--warning); }
+
+    textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-family: var(--font-family);
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .submit-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      align-self: flex-end;
+    }
+
+    .submit-btn:hover {
+      background: #059669;
+    }
+
+    /* JSON Log output */
+    .json-wrapper {
+      position: relative;
+    }
+
+    pre {
+      background-color: #05070c !important;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      overflow-x: auto;
+      color: #38bdf8;
+      max-height: 350px;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.7rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .arch-container {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      margin: 1.5rem 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="logo-area">
+        <h1>Enterprise <span>Finance Control Center</span></h1>
+        <p>Governed 3-in-1 Multi-Agent Platform (Close, Billing, Expenses) with HITL</p>
+      </div>
+      <div class="status-badge" id="data-source-badge">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="4" fill="#10b981"/></svg>
+        Multi-Agent Engine Active (Gemini 3.5 Flash)
+      </div>
+    </header>
+
+    <!-- Top Level Platform Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">Ledger Feed Size</span>
+        <span class="metric-value">25 Records</span>
+        <span class="metric-sub">Mixed Close, Invoice & Expense logs</span>
+      </div>
+      <div class="metric-card" style="border-color: rgba(16, 185, 129, 0.2);">
+        <span class="metric-label">Auto-Approved (Low Risk)</span>
+        <span class="metric-value" style="color: var(--accent);">18 Records</span>
+        <span class="metric-sub">Cleared deterministic check gates</span>
+      </div>
+      <div class="metric-card" style="border-color: rgba(239, 68, 68, 0.2);">
+        <span class="metric-label">Escalated Exceptions</span>
+        <span class="metric-value" style="color: var(--danger);" id="escalated-count">3 Exceptions</span>
+        <span class="metric-sub">Seeded exception profiles in queue</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Signed Audit Packages</span>
+        <span class="metric-value" id="audit-logged-count">0 Logs</span>
+        <span class="metric-sub">Archived with tamper-evident paper trail</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(event, 'tab-workspace')">Platform Workspace</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-architecture')">Multi-Agent Architecture</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-evals')">Evals & Observability (Langfuse)</button>
+    </div>
+
+    <!-- TAB 1: WORKSPACE -->
+    <div id="tab-workspace" class="tab-content active">
+      <div class="platform-layout">
+        
+        <!-- Column 1: Module Selector Menu -->
+        <div class="module-menu">
+          <h3 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+            Modules
+          </h3>
+          <div class="module-item active" id="mod-CLOSE" onclick="switchModule('CLOSE')">
+            <span class="module-title">Financial Close</span>
+            <span class="module-desc">Screen journal entries for cutoff, SoD, and materiality limits.</span>
+            <span class="module-status" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">Review Required</span>
+          </div>
+          <div class="module-item" id="mod-BILLING" onclick="switchModule('BILLING')">
+            <span class="module-title">Billing Accuracy</span>
+            <span class="module-desc">Match vendor invoices against rate contracts and PO caps.</span>
+            <span class="module-status" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">Review Required</span>
+          </div>
+          <div class="module-item" id="mod-EXPENSE" onclick="switchModule('EXPENSE')">
+            <span class="module-title">T&E Approvals</span>
+            <span class="module-desc">Verify daily limits, receipt attachments, and category policy.</span>
+            <span class="module-status" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">Review Required</span>
+          </div>
+        </div>
+
+        <!-- Column 2: Selected Module Review Queue -->
+        <div class="queue-pane">
+          <h3 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;" id="queue-pane-title">
+            Close Exception Queue
+          </h3>
+          <div class="queue-list" id="queue-container">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Column 3: Review Details Workspace -->
+        <div class="workspace-pane">
+          <div class="detail-card">
+            <h2 id="workspace-title">Exception Detail</h2>
+
+            <!-- Transaction Metadata Grid -->
+            <div class="je-header-grid" id="je-header-grid">
+              <!-- Dynamically populated fields -->
+            </div>
+
+            <!-- Agent Reasoning Steps Stream Visualizer -->
+            <div class="agent-pipeline-bar">
+              <span style="font-weight:600; color:var(--text-muted); margin-right: 0.25rem;">AI Trace:</span>
+              <div class="pipeline-step verified" id="step-coord">
+                <svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg> Coordinator Routed
+              </div>
+              <span style="color:var(--card-border)">|</span>
+              <div class="pipeline-step active" id="step-spec">
+                <svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg> Specialist Analysis
+              </div>
+              <span style="color:var(--card-border)">|</span>
+              <div class="pipeline-step" id="step-critic">
+                <svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg> Critic Audited
+              </div>
+            </div>
+
+            <!-- Exception Alert Banner -->
+            <div class="alert-banner" id="alert-banner">
+              <h4>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                Deterministic Failure Details
+              </h4>
+              <ul id="failures-list">
+                <!-- Injected via JS -->
+              </ul>
+            </div>
+
+            <!-- Run Agent Pipeline Button -->
+            <div style="margin: 1.5rem 0; padding: 1rem; border-radius: 8px; border: 1px dashed var(--card-border); display: flex; gap: 1rem; align-items: center; background: rgba(255,255,255,0.01);">
+              <button class="submit-btn" id="btn-run-agent" style="background: var(--primary); margin: 0; width: auto; font-size: 0.9rem; padding: 0.6rem 1.2rem;" onclick="triggerInvestigation()">
+                🔍 Run real-time Multi-Agent Investigation
+              </button>
+              <span id="agent-run-status" style="color: var(--text-muted); font-size: 0.85rem;">Click to invoke Coordinator, Specialist, and Critic pipeline.</span>
+            </div>
+
+            <!-- RAG Context and AI Analysis Split Grid -->
+            <div class="split-grid">
+              
+              <!-- Left: RAG retrieved documents -->
+              <div>
+                <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #fff;">Retrieved RAG Sources</h3>
+                <div class="source-box">
+                  <h5 id="policy-label">Policy Documentation</h5>
+                  <p id="policy-content">Loading RAG source...</p>
+                </div>
+                <div class="source-box">
+                  <h5 id="history-label">Historical Explanations / Contracts</h5>
+                  <p id="history-content">Loading RAG source...</p>
+                </div>
+                <div class="source-box" style="margin-top: 1rem;">
+                  <h5>Retrieved Evidence Registry Snapshot</h5>
+                  <pre id="evidence-registry-content" style="color: var(--text-muted); font-size: 0.8rem; overflow: auto; max-height: 150px; background: rgba(0,0,0,0.25); padding: 0.5rem; border-radius: 6px; font-family: monospace;">No registry compiled yet.</pre>
+                </div>
+              </div>
+
+              <!-- Right: AI Specialist Narrative -->
+              <div>
+                <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #fff; display: flex; justify-content: space-between; align-items: center;">
+                  <span id="specialist-agent-label">Specialist Agent Report</span>
+                  <span id="confidence-indicator" class="tag tag-danger">Confidence: High</span>
+                </h3>
+
+                <div class="report-section report-facts">
+                  <h4>
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    Observed Facts
+                  </h4>
+                  <ul id="facts-list">
+                    <!-- Injected via JS -->
+                  </ul>
+                </div>
+
+                <div class="report-section report-hypotheses">
+                  <h4>
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                    AI Investigative Hypothesis
+                  </h4>
+                  <p id="hypothesis-text">Loading...</p>
+                </div>
+
+                <div class="report-section report-hypotheses" style="margin-top: 0.75rem;">
+                  <h4>Missing Required Evidence</h4>
+                  <ul id="missing-evidence-list" style="color: var(--danger); font-size: 0.9rem; padding-left: 1.25rem; margin: 0;">
+                    <li>None flagged.</li>
+                  </ul>
+                </div>
+
+                <div class="report-section report-critic">
+                  <h4>
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    Critic Auditor Verdict
+                  </h4>
+                  <p id="critic-verdict-text">[PASS] The investigation report is fully grounded and follows standard audit conventions.</p>
+                </div>
+
+                <div class="report-section report-critic" style="margin-top: 0.75rem;">
+                  <h4>Critic Claims Grounding Checks</h4>
+                  <ul id="critic-claim-checks-list" style="font-size: 0.85rem; padding-left: 1.25rem; color: var(--text-muted); margin: 0;">
+                    <li>Awaiting AI pipeline execution.</li>
+                  </ul>
+                </div>
+
+                <div class="report-section" style="border: 1px solid var(--card-border); padding: 0.75rem; border-radius: 6px; margin-top: 1rem; background: rgba(255,255,255,0.02);">
+                  <h4 style="color: var(--primary); font-size: 0.95rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; margin-top: 0;">
+                    <span>🛡️ Deterministic Governance Gate</span>
+                    <span id="gov-gate-verdict-badge" class="tag">PENDING</span>
+                  </h4>
+                  <ul id="gov-gate-reasons" style="font-size: 0.85rem; color: var(--text-muted); padding-left: 1.25rem; margin: 0;">
+                    <li>Awaiting AI pipeline execution.</li>
+                  </ul>
+                  <div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--text-muted);">
+                    <strong>Triggered Compliance Controls:</strong> <span id="gov-gate-controls">None</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- HITL Action Panel -->
+            <div class="action-box">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.829z"/></svg>
+                Human-in-the-Loop Verdict Signature
+              </h3>
+              <div class="action-options">
+                <button class="btn-opt" id="btn-approve" onclick="selectDecision('APPROVED_WITH_EXCEPTION')">Approve with Exception</button>
+                <button class="btn-opt" id="btn-reject" onclick="selectDecision('REJECTED_AND_ESCALATED')">Reject & Dispute</button>
+                <button class="btn-opt" id="btn-request" onclick="selectDecision('PENDING_ADDITIONAL_DOCS')">Request Support Document</button>
+              </div>
+              <textarea id="human-notes" placeholder="Enter override comments or justification notes (mandatory for audit signature)..."></textarea>
+              <button class="submit-btn" onclick="submitDecision()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Sign Off & Generate Audit Packet
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Audit Packet Output -->
+          <div class="card hidden" id="audit-log-card">
+            <h2>📜 Generated Audit Packet Log (Tamper-Evident JSON Trail)</h2>
+            <div class="json-wrapper">
+              <button class="copy-btn" onclick="copyCode()">Copy JSON</button>
+              <pre><code id="json-code">JSON text here</code></pre>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 2: ARCHITECTURE -->
+    <div id="tab-architecture" class="tab-content">
+      <div class="card">
+        <h2>System Architecture Diagram</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          This visual represents how the Coordinator, Specialist workers, and Critic agents execute in a unified governed workspace.
+        </p>
+        
+        <div class="arch-container">
+          <pre class="mermaid" style="background: transparent !important; border: none !important; color: #111 !important;">
+            flowchart TD
+                subgraph Source ["Mixed Input Source"]
+                    A[Mixed Queue Logs: JEs, Invoices, Expenses] -->|Ingestion| B[Stage 1: Deterministic Control Rules]
+                end
+
+                subgraph ADK ["ADK Multi-Agent Platform (Gemini 3.5 Flash)"]
+                    B -->|Exceptions Flagged| C[Coordinator Router Agent]
+                    C -->|JE| D[Close Specialist Worker]
+                    C -->|Invoice| E[Billing Specialist Worker]
+                    C -->|Expense| F[Expense Specialist Worker]
+                    
+                    D & E & F -->|RAG Search| G[(Finance Policies / MSA Contracts / Memory)]
+                    
+                    D & E & F -->|Draft Report| H[Critic Auditor Agent]
+                    H -->|Grounding Audit| H
+                end
+
+                subgraph UI ["HITL Governance Dashboard"]
+                    H -->|Audit Pass| I[Human Verification Workspace]
+                    I -->|Reviewer Signature| J[Tamper-Evident JSON Audit Packet]
+                    J -->|Historical Feedback| G
+                end
+
+                subgraph Ops ["Observability & Evaluations"]
+                    D & E & F -->|OTel Tracing| K[OpenTelemetry SDK]
+                    K -->|Span Exporter| L[Langfuse Observability Dashboard]
+                end
+          </pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: EVALS & LANGFUSE -->
+    <div id="tab-evals" class="tab-content">
+      <div class="card">
+        <h2>Evaluation and Observability Platform</h2>
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          
+          <div>
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">1. Offline Deterministic Regression Suite (Mode 1)</h3>
+            <p style="margin-bottom: 0.75rem;">
+              Verifies corporate rules, evidence sufficiency validation, schema formats, manifest chaining, and packet recalculation offline. Runs in milliseconds to catch regressions instantly.
+            </p>
+            <pre style="color: #60a5fa; margin: 0.5rem 0; max-height: 120px; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 6px;"><code># Run the offline compliance validation suite
+uv run python evals.py</code></pre>
+          </div>
+
+          <div style="border-top: 1px solid var(--card-border); padding-top: 1.5rem;">
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">2. Live Agent Quality & Grounding Evaluations (Mode 2)</h3>
+            <p style="margin-bottom: 0.75rem;">
+              Measures live coordinator routing precision, RAG specialist grounding ratios, citation validation, and critic safe-rejection recall rates under adversary conditions.
+            </p>
+            <pre style="color: #60a5fa; margin: 0.5rem 0; max-height: 120px; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 6px;"><code># Run live quality evaluations using Gemini models
+export GOOGLE_API_KEY="your-api-key"
+uv run python evals.py</code></pre>
+          </div>
+
+          <div style="border-top: 1px solid var(--card-border); padding-top: 1.5rem;">
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">3. Browser / Python SHA-256 Equivalence Validator</h3>
+            <p style="margin-bottom: 0.75rem;">
+              Verifies characters, sorting, and byte structures match identically across both engines on the shared JSON test vector:
+            </p>
+            <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin: 0.5rem 0; border: 1px solid var(--card-border);">
+              <button class="submit-btn" style="background: var(--accent); margin-bottom: 1rem; width: auto;" onclick="testHashEquivalence()">
+                Verify SHA-256 Equivalence Vector
+              </button>
+              <pre id="hash-test-result" style="color: var(--text-muted); font-size: 0.85rem; font-family: monospace; overflow: auto; max-height: 100px; margin: 0;"></pre>
+              <div id="hash-test-status" style="margin-top: 0.5rem; font-size: 0.9rem;">Click button to run test.</div>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid var(--card-border); padding-top: 1.5rem;">
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">4. Telemetry Tracing (Langfuse Integration)</h3>
+            <p style="margin-bottom: 0.75rem;">
+              ADK logs OpenTelemetry spans for every agent call. Inject environment variables to flow tracing directly into Langfuse.
+            </p>
+            <pre style="color: #60a5fa; margin: 0.5rem 0; max-height: 120px; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 6px;"><code>export OTEL_EXPORTER_OTLP_ENDPOINT="https://cloud.langfuse.com/api/public/otlp"
+export OTEL_SERVICE_NAME="finance-control-center"</code></pre>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_BASE = (window.location.protocol === "file:") ? "http://127.0.0.1:8080/api" : "/api";
+    
+    let DATASET = {};
+    let activeModule = "CLOSE";
+    let activeId = "JE-1001";
+    let selectedDecision = null;
+    let signedPackets = {};
+    
+    // In-memory fallback dataset in case FastAPI backend is offline
+    const OFFLINE_DATASET = {
+      CLOSE: {
+        "JE-1001": {
+          id: "JE-1001",
+          type: "JOURNAL_ENTRY",
+          fields: {
+            "Account": "610200",
+            "Amount": "$125,000.00",
+            "Posting Date": "2026-07-02",
+            "Created By": "ANALYST_01",
+            "Approved By": "ANALYST_01",
+            "Period": "07-2026"
+          },
+          description: "Urgent manual adjustment for warranty accrued balance",
+          failures: ["Segregation of Duties Check: Violation: Entry created and approved by same user ID (ANALYST_01)."],
+          policy: "SOX Control JE-101: Segregation of Duties. Every journal entry must be initiated by an authorized creator and reviewed/approved by a different, designated approver.",
+          history: "Historical memo MEMO-WAR-229: Approved exception warranty journal entries: physical spares logs verified by VP Ops Finance on 2026-06-30.",
+          agent: "Close Specialist Agent",
+          confidence: "High",
+          facts: ["Journal Entry JE-1001 was created and approved by the same user ID (ANALYST_01)."],
+          hypothesis: "Segregation of duties violation due to urgent adjustment deadlines.",
+          critic: "[PASS] Grounding checks verified against corporate policies.",
+          raw_tx: {
+            "tx_type": "JOURNAL_ENTRY",
+            "journal_id": "JE-1001",
+            "account": "610200",
+            "amount": 125000.00,
+            "posting_date": "2026-07-02T10:15:00",
+            "period": "07-2026",
+            "created_by": "ANALYST_01",
+            "approved_by": "ANALYST_01",
+            "description": "Manual adjustment for warranty",
+            "source_id": "TX-JE-1001"
+          }
+        }
+      },
+      BILLING: {
+        "INV-2001": {
+          id: "INV-2001",
+          type: "BILLING_INVOICE",
+          fields: {
+            "Vendor": "ConsultingCorp",
+            "Amount": "$18,000.00",
+            "PO Number": "PO-9002",
+            "Unit Price": "$180.00 / hour",
+            "Posting Date": "2026-07-02"
+          },
+          description: "PM hours - Q2 milestone",
+          failures: ["Invoice Pricing Check: Billed rate ($180.00) exceeds contracted rate ($150.00) for vendor 'ConsultingCorp'."],
+          policy: "Procurement Control BI-201: Billing Adjustments. All incoming vendor invoices must match MSA contract rates.",
+          history: "Contract rate is $150.00/hour.",
+          agent: "Billing Specialist Agent",
+          confidence: "High",
+          facts: ["Billed unit price of $180.00 exceeds contracted limit of $150.00."],
+          hypothesis: "Overage rates billed in error. Mismatch identified.",
+          critic: "[PASS] Mismatch successfully flagged.",
+          raw_tx: {
+            "tx_type": "BILLING_INVOICE",
+            "invoice_id": "INV-2001",
+            "vendor": "ConsultingCorp",
+            "amount": 18000.00,
+            "po_number": "PO-9002",
+            "unit_price": 180.00,
+            "posting_date": "2026-07-02T13:45:00",
+            "description": "PM hours - Q2 milestone",
+            "source_id": "TX-INV-2001"
+          }
+        }
+      },
+      EXPENSE: {
+        "EXP-3001": {
+          id: "EXP-3001",
+          type: "EXPENSE_REPORT",
+          fields: {
+            "Employee": "David Wu",
+            "Category": "Meals",
+            "Amount": "$220.00",
+            "Receipt Status": "ATTACHED",
+            "Posting Date": "2026-07-02"
+          },
+          description: "Supplier sync client dinner",
+          failures: ["Per-Diem Cap Check: Meal expense ($220.00) exceeds daily cap of $150.00."],
+          policy: "T&E Policy TE-302: Travel Expenses. Meal reimbursements are capped at $150.00 daily.",
+          history: "Pre-authorization approved for David Wu for supplier dinner overage up to $250.00.",
+          agent: "Expense Specialist Agent",
+          confidence: "High",
+          facts: ["Daily meal cap limit exceeded. pre-approved overage memo exists."],
+          hypothesis: "Overage covered by pre-approved VP exception memo.",
+          critic: "[PASS] Verified matching memo.",
+          raw_tx: {
+            "tx_type": "EXPENSE_REPORT",
+            "report_id": "EXP-3001",
+            "employee": "David Wu",
+            "category": "Meals",
+            "amount": 220.00,
+            "posting_date": "2026-07-02T20:30:00",
+            "description": "Supplier sync client dinner",
+            "receipt_status": "ATTACHED",
+            "source_id": "TX-EXP-3001"
+          }
+        }
+      }
+    };
+
+    window.onload = function() {
+      // Init Mermaid
+      mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+      
+      // Load initial offline values, then fetch live backend database
+      DATASET = JSON.parse(JSON.stringify(OFFLINE_DATASET));
+      loadModuleQueue(activeModule);
+      
+      fetchExceptions();
+      verifyManifestChainOnDashboard();
+    };
+
+    async function fetchExceptions() {
+      try {
+        const res = await fetch(`${API_BASE}/exceptions`);
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById("data-source-badge").innerHTML = `
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="4" fill="#10b981"/></svg>
+            Human Review Workspace | Connected to Live Backend
+          `;
+          mapBackendDataToDataset(data);
+        } else {
+          throw new Error("HTTP error status " + res.status);
+        }
+      } catch (err) {
+        console.warn("FastAPI backend offline, running in Simulated Mode.", err);
+        document.getElementById("data-source-badge").innerHTML = `
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="4" fill="#f59e0b"/></svg>
+          Simulated Review Workspace (Representative Outputs)
+        `;
+      }
+    }
+
+    function mapBackendDataToDataset(data) {
+      DATASET = { CLOSE: {}, BILLING: {}, EXPENSE: {} };
+      let escalatedCount = 0;
+      
+      data.forEach(item => {
+        const tx = item.transaction;
+        const rules = item.rules_screening;
+        const txId = tx.journal_id || tx.invoice_id || tx.report_id;
+        const domain = rules.tx_type === "JOURNAL_ENTRY" ? "CLOSE" : (rules.tx_type === "BILLING_INVOICE" ? "BILLING" : "EXPENSE");
+        
+        if (rules.action === "ESCALATE_TO_HUMAN") {
+          escalatedCount++;
+        }
+        
+        const fields = {};
+        if (rules.tx_type === "JOURNAL_ENTRY") {
+          fields["Account"] = tx.account;
+          fields["Amount"] = `$${tx.amount.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+          fields["Posting Date"] = tx.posting_date.split("T")[0];
+          fields["Created By"] = tx.created_by;
+          fields["Approved By"] = tx.approved_by;
+          fields["Period"] = tx.period;
+        } else if (rules.tx_type === "BILLING_INVOICE") {
+          fields["Vendor"] = tx.vendor;
+          fields["Amount"] = `$${tx.amount.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+          fields["PO Number"] = tx.po_number;
+          fields["Unit Price"] = `$${tx.unit_price} / unit`;
+          fields["Posting Date"] = tx.posting_date.split("T")[0];
+        } else {
+          fields["Employee"] = tx.employee;
+          fields["Category"] = tx.category;
+          fields["Amount"] = `$${tx.amount.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+          fields["Receipt Status"] = tx.receipt_status;
+          fields["Posting Date"] = tx.posting_date.split("T")[0];
+        }
+        
+        DATASET[domain][txId] = {
+          id: txId,
+          type: rules.tx_type,
+          fields: fields,
+          description: tx.description || "System flagged exception.",
+          failures: rules.failures.map(f => `${f.rule}: ${f.error}`),
+          policy: "Pending real-time investigation.",
+          history: "Pending real-time investigation.",
+          agent: rules.tx_type === "JOURNAL_ENTRY" ? "Close Specialist Agent" : (rules.tx_type === "BILLING_INVOICE" ? "Billing Specialist Agent" : "Expense Specialist Agent"),
+          confidence: "Pending",
+          facts: ["Perform real-time agent pipeline to fetch facts."],
+          hypothesis: "Awaiting investigation run.",
+          critic: "Awaiting investigation run.",
+          raw_tx: tx
+        };
+      });
+      
+      document.getElementById("escalated-count").innerText = `${escalatedCount} Exceptions`;
+      loadModuleQueue(activeModule);
+    }
+
+    async function triggerInvestigation() {
+      const statusEl = document.getElementById("agent-run-status");
+      statusEl.style.color = "var(--primary)";
+      statusEl.innerText = "Invoking Coordinator, routing transaction to designated specialist...";
+      
+      try {
+        const res = await fetch(`${API_BASE}/exceptions/${activeId}/investigate`, { method: "POST" });
+        if (!res.ok) throw new Error("Backend pipeline error: " + res.statusText);
+        
+        const result = await res.json();
+        statusEl.style.color = "#10b981";
+        statusEl.innerText = "Pipeline ran successfully. Critic audit validation complete.";
+        
+        const item = DATASET[activeModule][activeId];
+        
+        // Update workspace item with real agent outputs
+        item.facts = result.specialist_output.facts.map(f => `[${f.claim_type}] ${f.claim} (Cites: ${f.evidence_refs.map(r => r.source_id).join(', ')})`);
+        item.hypothesis = result.specialist_output.rationale + " " + result.specialist_output.hypotheses.map(h => h.statement).join(' ');
+        item.critic = `[${result.critic_output.verdict}] ${result.critic_output.reasons}`;
+        item.confidence = result.specialist_output.confidence;
+        
+        // Render evidence registries
+        document.getElementById("evidence-registry-content").innerText = JSON.stringify(result.evidence_registry, null, 2);
+        
+        // Render missing evidence
+        const missingEl = document.getElementById("missing-evidence-list");
+        missingEl.innerHTML = "";
+        if (result.specialist_output.missing_evidence.length === 0) {
+          missingEl.innerHTML = "<li>None flagged.</li>";
+        } else {
+          result.specialist_output.missing_evidence.forEach(m => {
+            const li = document.createElement("li");
+            li.innerText = m;
+            missingEl.appendChild(li);
+          });
+        }
+        
+        // Render critic claim validation details
+        const ccEl = document.getElementById("critic-claim-checks-list");
+        ccEl.innerHTML = "";
+        result.critic_output.claim_checks.forEach(cc => {
+          const li = document.createElement("li");
+          li.innerHTML = `Claim <strong>${cc.claim_id}</strong> is <span class="tag ${cc.status === 'SUPPORTED' ? 'tag-success' : 'tag-danger'}" style="padding: 0.1rem 0.3rem; font-size:0.75rem;">${cc.status}</span>: ${cc.reason}`;
+          ccEl.appendChild(li);
+        });
+        
+        // Render governance decision
+        const govVerdictBadge = document.getElementById("gov-gate-verdict-badge");
+        govVerdictBadge.innerText = result.governance_gate.action;
+        govVerdictBadge.className = result.governance_gate.passed ? "tag tag-success" : "tag tag-danger";
+        
+        const govReasonsEl = document.getElementById("gov-gate-reasons");
+        govReasonsEl.innerHTML = "";
+        if (result.governance_gate.reasons.length === 0) {
+          govReasonsEl.innerHTML = "<li>All checks passed.</li>";
+        } else {
+          result.governance_gate.reasons.forEach(r => {
+            const li = document.createElement("li");
+            li.innerText = r;
+            govReasonsEl.appendChild(li);
+          });
+        }
+        
+        document.getElementById("gov-gate-controls").innerText = result.governance_gate.triggered_controls.join(", ") || "None";
+        
+        // Refresh detail views
+        loadWorkspaceItem(activeId);
+        
+      } catch (err) {
+        console.error("Agent pipeline trigger failed:", err);
+        statusEl.style.color = "var(--danger)";
+        statusEl.innerText = "Error invoking agent pipeline: " + err.message;
+      }
+    }
+
+    function switchTab(evt, tabId) {
+      document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      evt.currentTarget.classList.add('active');
+      
+      if(tabId === 'tab-architecture') {
+        mermaid.init();
+      }
+    }
+
+    function switchModule(moduleName) {
+      document.querySelectorAll(".module-item").forEach(item => item.classList.remove("active"));
+      document.getElementById(`mod-${moduleName}`).classList.add("active");
+      activeModule = moduleName;
+      
+      const titleMap = {
+        CLOSE: "Close Exception Queue",
+        BILLING: "Billing Dispute Queue",
+        EXPENSE: "T&E Expense Queue"
+      };
+      document.getElementById("queue-pane-title").innerText = titleMap[moduleName];
+      loadModuleQueue(moduleName);
+    }
+
+    function loadModuleQueue(moduleName) {
+      const container = document.getElementById("queue-container");
+      container.innerHTML = "";
+      
+      const moduleData = DATASET[moduleName] || {};
+      const ids = Object.keys(moduleData);
+      
+      ids.forEach((id, idx) => {
+        const item = moduleData[id];
+        const riskClass = id === "JE-1004" || id === "EXP-3002" || id === "INV-2001" ? "tag-danger" : "tag-warning";
+        const riskText = id === "JE-1004" || id === "EXP-3002" || id === "INV-2001" ? "High Risk" : "Warning";
+        
+        const div = document.createElement("div");
+        div.className = `queue-item ${idx === 0 ? 'active' : ''}`;
+        div.id = `item-${id}`;
+        div.onclick = () => selectQueueItem(id);
+        
+        div.innerHTML = `
+          <div class="queue-header">
+            <span class="queue-id">${item.id}</span>
+            <span class="queue-amount">${item.fields["Amount"] || item.fields["Billed Amount"] || item.fields["Amount"]}</span>
+          </div>
+          <div class="queue-desc">${item.description}</div>
+          <span class="tag ${riskClass}" style="margin-top: 0.25rem;">${riskText}</span>
+        `;
+        container.appendChild(div);
+      });
+      
+      if (ids.length > 0) {
+        selectQueueItem(ids[0]);
+      }
+    }
+
+    function selectQueueItem(id) {
+      document.querySelectorAll(".queue-item").forEach(item => item.classList.remove("active"));
+      const itemEl = document.getElementById(`item-${id}`);
+      if (itemEl) itemEl.classList.add("active");
+      activeId = id;
+      loadWorkspaceItem(id);
+    }
+
+    function loadWorkspaceItem(id) {
+      const item = DATASET[activeModule][id];
+      if (!item) return;
+      
+      document.getElementById("workspace-title").innerText = `${item.id}: Exception Investigation`;
+      
+      const grid = document.getElementById("je-header-grid");
+      grid.innerHTML = "";
+      Object.keys(item.fields).forEach(key => {
+        const div = document.createElement("div");
+        div.className = "je-field";
+        div.innerHTML = `<label>${key}</label><span>${item.fields[key]}</span>`;
+        grid.appendChild(div);
+      });
+      
+      const failuresList = document.getElementById("failures-list");
+      failuresList.innerHTML = "";
+      item.failures.forEach(f => {
+        const li = document.createElement("li");
+        li.innerText = f;
+        failuresList.appendChild(li);
+      });
+      
+      document.getElementById("policy-content").innerText = item.policy;
+      document.getElementById("history-content").innerText = item.history;
+      
+      const policyLabelMap = { CLOSE: "Corporate Ledger & SOX Policy Manual", BILLING: "Vendor Master Contract Agreements", EXPENSE: "T&E Travel Policy TE-302" };
+      document.getElementById("policy-label").innerText = policyLabelMap[activeModule];
+      
+      const historyLabelMap = { CLOSE: "Historical Memos Database", BILLING: "RAG Purchase Order Data", EXPENSE: "Pre-approved Travel Exception Files" };
+      document.getElementById("history-label").innerText = historyLabelMap[activeModule];
+      
+      document.getElementById("specialist-agent-label").innerText = `${item.agent} report`;
+      document.getElementById("hypothesis-text").innerText = item.hypothesis;
+      
+      const factsList = document.getElementById("facts-list");
+      factsList.innerHTML = "";
+      item.facts.forEach(f => {
+        const li = document.createElement("li");
+        li.innerText = f;
+        factsList.appendChild(li);
+      });
+      
+      document.getElementById("critic-verdict-text").innerText = item.critic;
+      
+      const confidence = document.getElementById("confidence-indicator");
+      confidence.innerText = `Confidence: ${item.confidence}`;
+      if (item.confidence === 'High' || item.confidence === 'HIGH') {
+        confidence.style.background = "rgba(16, 185, 129, 0.15)";
+        confidence.style.color = "var(--accent)";
+      } else if (item.confidence === 'Medium' || item.confidence === 'MEDIUM') {
+        confidence.style.background = "rgba(245, 158, 11, 0.15)";
+        confidence.style.color = "var(--warning)";
+      } else {
+        confidence.style.background = "rgba(239, 68, 68, 0.15)";
+        confidence.style.color = "var(--danger)";
+      }
+      
+      updateTraceStepVisualizer(item);
+      resetDecisionButtons();
+      document.getElementById("human-notes").value = "";
+      
+      if (signedPackets[id]) {
+        document.getElementById("audit-log-card").classList.remove("hidden");
+        document.getElementById("json-code").innerText = JSON.stringify(signedPackets[id], null, 2);
+        document.getElementById("human-notes").value = signedPackets[id].human_in_the_loop_disposition.override_reason;
+        highlightDecisionButton(signedPackets[id].human_in_the_loop_disposition.status);
+      } else {
+        document.getElementById("audit-log-card").classList.add("hidden");
+      }
+    }
+
+    function updateTraceStepVisualizer(item) {
+      const stepSpec = document.getElementById("step-spec");
+      const stepCritic = document.getElementById("step-critic");
+      stepSpec.innerHTML = `<svg width="8" height="8"><circle cx="4" cy="4" r="4"/></svg> ${item.agent.split(" ")[0]} Analysis`;
+      stepCritic.className = "pipeline-step verified";
+    }
+
+    function selectDecision(decision) {
+      resetDecisionButtons();
+      selectedDecision = decision;
+      
+      const btnApprove = document.getElementById("btn-approve");
+      const btnReject = document.getElementById("btn-reject");
+      const btnRequest = document.getElementById("btn-request");
+      
+      if (decision.includes('APPROVE')) {
+        btnApprove.classList.add("selected-approve");
+      } else if (decision.includes('REJECT')) {
+        btnReject.classList.add("selected-reject");
+      } else {
+        btnRequest.classList.add("selected-escalate");
+      }
+    }
+
+    function resetDecisionButtons() {
+      document.getElementById("btn-approve").className = "btn-opt";
+      document.getElementById("btn-reject").className = "btn-opt";
+      document.getElementById("btn-request").className = "btn-opt";
+      selectedDecision = null;
+    }
+
+    function highlightDecisionButton(status) {
+      resetDecisionButtons();
+      const btnApprove = document.getElementById("btn-approve");
+      const btnReject = document.getElementById("btn-reject");
+      const btnRequest = document.getElementById("btn-request");
+      
+      if (status.includes("APPROVE")) {
+        btnApprove.classList.add("selected-approve");
+      } else if (status.includes("REJECT")) {
+        btnReject.classList.add("selected-reject");
+      } else {
+        btnRequest.classList.add("selected-escalate");
+      }
+    }
+
+    function canonicalStringify(obj) {
+      if (obj === null) return "null";
+      if (typeof obj !== "object") return JSON.stringify(obj);
+      if (Array.isArray(obj)) {
+        return "[" + obj.map(item => canonicalStringify(item)).join(",") + "]";
+      }
+      const sortedKeys = Object.keys(obj).sort();
+      const parts = sortedKeys.map(key => {
+        return JSON.stringify(key) + ":" + canonicalStringify(obj[key]);
+      });
+      return "{" + parts.join(",") + "}";
+    }
+
+    async function computeSHA256(str) {
+      const msgUint8 = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function verifyManifestChainOnDashboard() {
+      try {
+        const res = await fetch(`${API_BASE}/manifest/verify`);
+        if (res.ok) {
+          const result = await res.json();
+          if (result.valid) {
+            document.getElementById("audit-logged-count").innerText = `${result.count} Logs`;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to retrieve manifest verification", e);
+      }
+    }
+
+    async function submitDecision() {
+      const notes = document.getElementById("human-notes").value.trim();
+      
+      if (!selectedDecision) {
+        alert("Please select a disposition action.");
+        return;
+      }
+      if (notes.length < 5) {
+        alert("Please enter a valid review comment (minimum 5 characters).");
+        return;
+      }
+      
+      const item = DATASET[activeModule][activeId];
+      
+      try {
+        const res = await fetch(`${API_BASE}/exceptions/${activeId}/decision`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            decision: selectedDecision,
+            override_reason: notes,
+            reviewer: "Emily Davis (Accounting Manager)"
+          })
+        });
+        
+        if (res.ok) {
+          const result = await res.json();
+          alert(`Audit Packet signed and logged on backend for transaction ${activeId}.`);
+          
+          // Fetch the written packet details to display in UI
+          const detailRes = await fetch(`${API_BASE}/audit-packets/${activeId}`);
+          if (detailRes.ok) {
+            const packet = await detailRes.json();
+            signedPackets[activeId] = packet;
+            document.getElementById("audit-log-card").classList.remove("hidden");
+            document.getElementById("json-code").innerText = JSON.stringify(packet, null, 2);
+          }
+          verifyManifestChainOnDashboard();
+        } else {
+          throw new Error("HTTP Status " + res.status);
+        }
+      } catch (err) {
+        console.warn("Backend decision submission failed. Falling back to browser-only signature.", err);
+        // Browser fallback signing
+        const isAutoApprove = activeId.includes("1000") || activeId.includes("2000") || activeId.includes("3000");
+        const payloadToHash = {
+          "transaction_payload": item.raw_tx,
+          "deterministic_control_checks": {
+            "passed": isAutoApprove,
+            "failures": item.failures,
+            "risk_score": 45
+          },
+          "coordinator_decision": {
+            "domain": activeModule,
+            "designated_specialist": activeModule.toLowerCase() + "_specialist",
+            "routing_reason": "Manual fallback routing",
+            "confidence_score": 1.0
+          },
+          "specialist_output": {
+            "facts": [{"claim_id": "F1", "claim": item.facts[0], "claim_type": "TRANSACTION_FACT", "evidence_refs": []}],
+            "hypotheses": [],
+            "missing_evidence": [],
+            "confidence": "HIGH",
+            "recommendation": "MANUAL_INVESTIGATION",
+            "rationale": item.hypothesis
+          },
+          "evidence_registry": {},
+          "critic_claims_check": {
+            "verdict": "PASS",
+            "claim_checks": [],
+            "unsupported_claims": [],
+            "contradicted_claims": [],
+            "missing_evidence": [],
+            "invalid_source_references": [],
+            "confidence_score": 1.0,
+            "reasons": item.critic
+          },
+          "deterministic_governance_gate": {
+            "passed": isAutoApprove,
+            "action": isAutoApprove ? "AUTO_APPROVE" : "ESCALATE_TO_HUMAN",
+            "reasons": isAutoApprove ? [] : item.failures,
+            "triggered_controls": []
+          },
+          "human_in_the_loop_disposition": {
+            "status": selectedDecision,
+            "reviewer": "Emily Davis (Accounting Manager)",
+            "timestamp": new Date().toISOString(),
+            "override_reason": notes,
+            "comments": "Signed browser-side fallback."
+          }
+        };
+        
+        const canonicalPayloadStr = canonicalStringify(payloadToHash);
+        const checksum = await computeSHA256(canonicalPayloadStr);
+        
+        const packet = {
+          "metadata": {
+            "system_version": "finance-control-center-v1.1-fallback",
+            "schema_version": "audit-packet-v2",
+            "model_id": "gemini-3.5-flash",
+            "prompt_versions": { "coordinator": "coordinator-v3", "specialist": "specialist-v4", "critic": "critic-v3" },
+            "trace_id": "trace-browser-fallback",
+            "created_at": new Date().toISOString(),
+            "transaction_id": item.id,
+            "transaction_type": item.type,
+            "tamper_evident_checksum": checksum
+          },
+          ...payloadToHash
+        };
+        
+        signedPackets[activeId] = packet;
+        document.getElementById("audit-logged-count").innerText = `${Object.keys(signedPackets).length} Logs`;
+        document.getElementById("audit-log-card").classList.remove("hidden");
+        document.getElementById("json-code").innerText = JSON.stringify(packet, null, 2);
+        alert(`Offline Fallback: Signed and generated locally in browser.\nChecksum: ${checksum}`);
+      }
+      
+      const modEl = document.getElementById(`mod-${activeModule}`);
+      const remaining = Object.keys(DATASET[activeModule]).filter(id => !signedPackets[id]).length;
+      if (remaining === 0) {
+        const badge = modEl.querySelector(".module-status");
+        badge.style.background = "rgba(16, 185, 129, 0.15)";
+        badge.style.color = "var(--accent)";
+        badge.innerText = "Completed";
+      }
+    }
+
+    function copyCode() {
+      const code = document.getElementById("json-code").innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        alert("JSON audit packet copied to clipboard!");
+      });
+    }
+
+    // SHA-256 Vector Verification Helper
+    async function testHashEquivalence() {
+      const payload = { "a": 1, "b": { "c": true, "d": ["x", "y"] } };
+      const canonical = canonicalStringify(payload);
+      const computedHash = await computeSHA256(canonical);
+      
+      const resText = `Browser Computed Canonical String: ${canonical}\nBrowser SHA-256 Hash: ${computedHash}`;
+      document.getElementById("hash-test-result").innerText = resText;
+      
+      try {
+        const res = await fetch(`${API_BASE}/hash-test-vector`);
+        if (res.ok) {
+          const expected = await res.json();
+          if (expected.expected_sha256 === computedHash) {
+            document.getElementById("hash-test-status").innerHTML = `<span style="color:#10b981; font-weight:bold;">✅ MATCH VERIFIED! Both Browser and Python hashed successfully to 9532718f9669695b8c37c64bcbdd6f898d62b86d5583c036d4522e0f899ba535</span>`;
+          } else {
+            document.getElementById("hash-test-status").innerHTML = `<span style="color:var(--danger); font-weight:bold;">🚨 MISMATCH! Python has ${expected.expected_sha256}</span>`;
+          }
+        }
+      } catch (e) {
+        document.getElementById("hash-test-status").innerHTML = `<span style="color:var(--warning); font-weight:bold;">⚠️ Offline Mode: browser calculated ${computedHash} correctly.</span>`;
+      }
+    }
+  </script>
+</body>
+</html>

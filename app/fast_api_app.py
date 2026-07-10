@@ -67,6 +67,10 @@ app: FastAPI = get_fast_api_app(
 app.title = "close-investigator"
 app.description = "API for interacting with the Agent close-investigator"
 
+# Mount custom FinanceGuard AI Dashboard routes
+from app.dashboard_server import router as dashboard_router
+app.include_router(dashboard_router)
+
 
 @app.post("/feedback")
 def collect_feedback(feedback: Feedback) -> dict[str, str]:

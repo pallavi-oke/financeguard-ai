@@ -5,7 +5,7 @@ import os
 import json
 import logging
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
@@ -21,16 +21,9 @@ class DecisionRequest(BaseModel):
     override_reason: str
     reviewer: str
 
-app = FastAPI(title="Governance Dashboard Backend", version="1.1")
+router = APIRouter()
 
-# Configure CORS so local dashboard HTML can fetch
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
 
 HTML_PATH = Path(__file__).resolve().parent.parent / "finance_ai_control_center.html"
 
@@ -38,22 +31,28 @@ HTML_PATH = Path(__file__).resolve().parent.parent / "finance_ai_control_center.
 MOCK_REVIEW_DATA = {}
 
 
-@app.get("/", response_class=HTMLResponse)
+@router.get("/", response_class=HTMLResponse)
 def read_root():
     """Serves the main human review dashboard page."""
-    if not HTML_PATH.exists():
-        # Fallback search in parent directory
-        parent_path = Path(__file__).resolve().parent.parent.parent / "finance_ai_control_center.html"
-        if parent_path.exists():
-            with open(parent_path, "r") as f:
-                return f.read()
-        raise HTTPException(status_code=404, detail="finance_ai_control_center.html dashboard file not found.")
-        
-    with open(HTML_PATH, "r") as f:
-        return f.read()
+    # Prioritize the packaged index.html inside the container
+    app_index = Path(__file__).resolve().parent / "index.html"
+    if app_index.exists():
+        with open(app_index, "r") as f:
+            return HTMLResponse(content=f.read(), status_code=200)
+            
+    if HTML_PATH.exists():
+        with open(HTML_PATH, "r") as f:
+            return HTMLResponse(content=f.read(), status_code=200)
+            
+    parent_path = Path(__file__).resolve().parent.parent.parent / "finance_ai_control_center.html"
+    if parent_path.exists():
+        with open(parent_path, "r") as f:
+            return HTMLResponse(content=f.read(), status_code=200)
+            
+    raise HTTPException(status_code=404, detail="finance_ai_control_center.html dashboard file not found.")
 
 
-@app.get("/api/exceptions")
+@router.get("/api/exceptions")
 def get_exceptions():
     """Returns the exception queue by screening the mixed transaction feed."""
     feed = get_mixed_feed()
@@ -67,7 +66,7 @@ def get_exceptions():
     return exceptions
 
 
-@app.get("/api/exceptions/{transaction_id}")
+@router.get("/api/exceptions/{transaction_id}")
 def get_exception_detail(transaction_id: str):
     """Returns detail for a single transaction exception."""
     feed = get_mixed_feed()
@@ -82,7 +81,7 @@ def get_exception_detail(transaction_id: str):
     raise HTTPException(status_code=404, detail="Exception not found.")
 
 
-@app.post("/api/exceptions/{transaction_id}/investigate")
+@router.post("/api/exceptions/{transaction_id}/investigate")
 async def investigate_exception(transaction_id: str):
     """Executes the multi-agent investigation pipeline (Coordinator -> Worker -> Critic -> Gate).
     
@@ -265,7 +264,7 @@ async def investigate_exception(transaction_id: str):
         }
 
 
-@app.post("/api/exceptions/{transaction_id}/decision")
+@router.post("/api/exceptions/{transaction_id}/decision")
 def submit_decision(transaction_id: str, req: DecisionRequest):
     """Saves the human override disposition and generates a tamper-evident audit packet."""
     review_data = MOCK_REVIEW_DATA.get(transaction_id)
@@ -315,7 +314,7 @@ def submit_decision(transaction_id: str, req: DecisionRequest):
         raise HTTPException(status_code=500, detail=f"Failed to write audit packet: {str(e)}")
 
 
-@app.get("/api/audit-packets/{transaction_id}")
+@router.get("/api/audit-packets/{transaction_id}")
 def get_audit_packet(transaction_id: str):
     """Loads and returns the saved JSON audit packet for a transaction."""
     if not AUDIT_LOG_DIR.exists():
@@ -329,7 +328,7 @@ def get_audit_packet(transaction_id: str):
     raise HTTPException(status_code=404, detail="Audit packet not found.")
 
 
-@app.post("/api/audit/verify/{transaction_id}")
+@router.post("/api/audit/verify/{transaction_id}")
 def verify_packet(transaction_id: str):
     """Verifies the checksum integrity of a transaction's audit packet."""
     if not AUDIT_LOG_DIR.exists():
@@ -351,7 +350,7 @@ def verify_packet(transaction_id: str):
     }
 
 
-@app.get("/api/manifest/verify")
+@router.get("/api/manifest/verify")
 def get_manifest_verification():
     """Runs a complete cryptographic manifest chain audit."""
     verification = verify_manifest_chain()
@@ -359,7 +358,7 @@ def get_manifest_verification():
 
 
 # Validation Test Vector for Browser/Python Hashing Equivalence
-@app.get("/api/hash-test-vector")
+@router.get("/api/hash-test-vector")
 def get_hash_test_vector():
     """Returns the expected test vector string and pre-calculated SHA-256 hash."""
     return {
@@ -374,6 +373,16 @@ def get_hash_test_vector():
         "expected_sha256": "9532718f9669695b8c37c64bcbdd6f898d62b86d5583c036d4522e0f899ba535"
     }
 
+
+app = FastAPI(title="FinanceGuard AI Dashboard Server", version="1.1")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.include_router(router)
 
 if __name__ == "__main__":
     import uvicorn
