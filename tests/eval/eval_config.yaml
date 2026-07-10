@@ -1,0 +1,110 @@
+# Evaluation configuration for the Finance Close Exception Investigator.
+#
+# We do NOT string-match the agent's report (financial narratives vary). Instead we
+# use LLM-as-judge metrics targeting the three qualities that matter for a controls
+# assistant: grounding (no hallucinated facts), facts/hypothesis separation, and
+# correct triage routing. Run against the golden set:
+#
+#   agents-cli eval generate --dataset tests/eval/datasets/close_investigations.json
+#   agents-cli eval grade
+
+metrics_to_run:
+  - grounding_accuracy
+  - facts_hypothesis_separation
+  - triage_routing_correctness
+
+custom_metrics:
+  # 1) Grounding: every Observed Fact must trace to the ledger, a retrieved policy,
+  #    or tool output. Fabricated roles, amounts, memos, or policy clauses are failures.
+  - name: grounding_accuracy
+    prompt_template: |
+      You are a controls-assurance evaluator for a finance close AI assistant. Judge whether the agent's INVESTIGATION REPORT is grounded ONLY in verifiable evidence.
+
+      Evidence the agent is allowed to rely on:
+      - The ledger/journal-entry details and deterministic rule failures given in the user prompt.
+      - Outputs of the tools it called (user profiles, corporate policies, related transactions, historical memos) — visible in the trace.
+
+      A grounding FAILURE is any statement in the "Observed Facts" or "Evidence Retrieved" sections that is not supported by the above — e.g. a user role that was never retrieved, a policy threshold that differs from the retrieved policy text, a claimed historical memo that the tools did not return, or an invented amount/date.
+
+      Score 1-5:
+      1: Multiple fabricated facts or misquoted policies.
+      2: At least one clear fabricated/unsupported fact.
+      3: Mostly grounded; one minor unsupported detail or vague attribution.
+      4: Fully grounded; every fact traceable, minor wording looseness only.
+      5: Fully grounded AND explicitly cites the specific policy names / memo IDs / user profiles it relied on.
+
+      User Prompt: {prompt}
+      Final Response: {response}
+      Full Agent Trace: {agent_data}
+
+      Return ONLY a valid JSON object:
+      {
+        "score": <integer 1-5>,
+        "explanation": "<cite the specific grounded or ungrounded statements you based the score on>"
+      }
+
+  # 2) Facts vs. hypotheses separation: the Observed Facts section must be purely
+  #    factual; interpretation/motive/risk belongs in the labeled Hypothesis section.
+  - name: facts_hypothesis_separation
+    prompt_template: |
+      You are a controls-assurance evaluator. The agent must keep verifiable FACTS strictly separate from interpretive HYPOTHESES, because a human controller relies on that boundary.
+
+      Requirements:
+      - The "Observed Facts" section contains ONLY objective, verifiable statements (who/what/when/amount), with no motive, intent, or risk judgement.
+      - Any speculation, motive, or interpretation ("likely to expedite", "may indicate override", "appears fraudulent") appears ONLY under a clearly labeled "Hypothesis" section.
+      - The hypothesis is explicitly framed as a hypothesis, not asserted as fact.
+
+      A leak = interpretive/speculative language appearing inside Observed Facts, OR a hypothesis stated as established fact.
+
+      Score 1-5:
+      1: Facts and hypotheses fully entangled; speculation presented as fact.
+      2: Several leaks between the sections.
+      3: Mostly separated; one leak or one unlabeled inference.
+      4: Cleanly separated; hypothesis labeled; only trivial wording issues.
+      5: Cleanly separated, hypothesis explicitly labeled AND written in neutral, non-accusatory language.
+
+      User Prompt: {prompt}
+      Final Response: {response}
+      Full Agent Trace: {agent_data}
+
+      Return ONLY a valid JSON object:
+      {
+        "score": <integer 1-5>,
+        "explanation": "<quote any leaked speculation or confirm clean separation>"
+      }
+
+  # 3) Triage routing correctness: the Recommended Action must follow from the
+  #    violated control and policy. Approving an unresolved material exception is wrong.
+  - name: triage_routing_correctness
+    prompt_template: |
+      You are a controls-assurance evaluator. Judge whether the agent's "Recommended Action" is appropriate given the control failures in the prompt and the corporate policies.
+
+      Correct routing principles:
+      - Manual entry over the materiality threshold with a MISSING authorization reference -> "Request Supporting Invoice" or escalate; NOT plain Approve.
+      - Segregation-of-duties, period-cutoff, sensitive-account, or duplicate violations -> Escalate to Controller (Approve-with-note only when a valid historical memo or authorization fully explains it).
+      - An entry with NO violations (e.g. system-automated postings) -> Approve (with note); the agent must NOT invent a violation.
+      - Confidence should be Low when there is no supporting history and the entry is an outlier; Higher when a matching memo/authorization exists.
+
+      Score 1-5:
+      1: Dangerously wrong routing (e.g. approves an unresolved material exception, or fabricates a violation on a clean entry).
+      2: Wrong action or clearly miscalibrated confidence.
+      3: Defensible but suboptimal action or confidence.
+      4: Correct action; confidence roughly right.
+      5: Correct action AND well-calibrated confidence AND a clear escalation narrative for the human reviewer.
+
+      User Prompt: {prompt}
+      Final Response: {response}
+      Full Agent Trace: {agent_data}
+
+      Return ONLY a valid JSON object:
+      {
+        "score": <integer 1-5>,
+        "explanation": "<state the expected action, the agent's action, and why the score follows>"
+      }
+
+  # Diagnostic (non-scored quality signal): how many reasoning/tool turns the agent took.
+  - name: agent_turn_count
+    custom_function: |
+      def evaluate(instance):
+          turns = (instance.get("agent_data") or {}).get("turns", [])
+          return {'score': len(turns)}

@@ -1,0 +1,137 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "sod_violation_JE-1001",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Please perform a close exception investigation for journal entry JE-1001.\nLedger details:\n{\n  \"journal_id\": \"JE-1001\",\n  \"account\": \"610200\",\n  \"cost_center\": \"CC-4020\",\n  \"entity\": \"US01\",\n  \"amount\": 125000.0,\n  \"currency\": \"USD\",\n  \"posting_date\": \"2026-07-02T10:15:00\",\n  \"period\": \"07-2026\",\n  \"created_by\": \"ANALYST_01\",\n  \"approved_by\": \"ANALYST_01\",\n  \"description\": \"Urgent manual adjustment for Q2 CSBG parts replacement warranty accrued balance\",\n  \"source_system\": \"SAP_MANUAL\",\n  \"document_id\": \"DOC-10294\",\n  \"authorization_ref\": \"REQ-WAR-229\"\n}\n\nDeterministic rule failures:\n[\n  {\n    \"rule\": \"Segregation of Duties Check\",\n    \"error\": \"Violation: Entry created and approved by the same user ID (ANALYST_01).\"\n  }\n]"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_primary_control": "Segregation of Duties",
+        "expected_routing": "Escalate to Controller",
+        "risk_score": 45,
+        "triage_action": "ESCALATE_TO_HUMAN",
+        "num_failures": 1,
+        "notes": "Creator == approver. History memo exists, so confidence should be Medium/High, not Low."
+      }
+    },
+    {
+      "eval_case_id": "materiality_missing_auth_JE-1002",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Please perform a close exception investigation for journal entry JE-1002.\nLedger details:\n{\n  \"journal_id\": \"JE-1002\",\n  \"account\": \"610300\",\n  \"cost_center\": \"CC-1100\",\n  \"entity\": \"SG01\",\n  \"amount\": 320000.0,\n  \"currency\": \"USD\",\n  \"posting_date\": \"2026-07-02T14:30:00\",\n  \"period\": \"07-2026\",\n  \"created_by\": \"ANALYST_02\",\n  \"approved_by\": \"MANAGER_02\",\n  \"description\": \"Manual posting for global consulting project milestones\",\n  \"source_system\": \"SAP_MANUAL\",\n  \"document_id\": \"DOC-10295\",\n  \"authorization_ref\": null\n}\n\nDeterministic rule failures:\n[\n  {\n    \"rule\": \"Materiality Check\",\n    \"error\": \"Violation: Manual entry amount ($320,000.00) exceeds materiality threshold ($250,000.00) with no authorization reference.\"\n  }\n]"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_primary_control": "Materiality",
+        "expected_routing": "Request Supporting Invoice",
+        "risk_score": 50,
+        "triage_action": "ESCALATE_TO_HUMAN",
+        "num_failures": 1,
+        "notes": "Manual >$250K with null authorization_ref. Must NOT recommend plain Approve."
+      }
+    },
+    {
+      "eval_case_id": "period_cutoff_JE-1003",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Please perform a close exception investigation for journal entry JE-1003.\nLedger details:\n{\n  \"journal_id\": \"JE-1003\",\n  \"account\": \"620500\",\n  \"cost_center\": \"CC-1200\",\n  \"entity\": \"US01\",\n  \"amount\": 45000.0,\n  \"currency\": \"USD\",\n  \"posting_date\": \"2026-07-03T17:45:00\",\n  \"period\": \"06-2026\",\n  \"created_by\": \"ANALYST_03\",\n  \"approved_by\": \"MANAGER_03\",\n  \"description\": \"Late expense report accruals reconciliation\",\n  \"source_system\": \"SAP_MANUAL\",\n  \"document_id\": \"DOC-10296\",\n  \"authorization_ref\": null\n}\n\nDeterministic rule failures:\n[\n  {\n    \"rule\": \"Period Cutoff Check\",\n    \"error\": \"Violation: Entry posted to closed period 06-2026 on 2026-07-03T17:45:00, which is past the month-end close cutoff (2026-07-02T17:00:00).\"\n  }\n]"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_primary_control": "Period Cutoff",
+        "expected_routing": "Escalate to Controller",
+        "risk_score": 25,
+        "triage_action": "ESCALATE_TO_HUMAN",
+        "num_failures": 1,
+        "notes": "Posted to closed June period after the July-2 cutoff without a cutoff token."
+      }
+    },
+    {
+      "eval_case_id": "sensitive_retained_earnings_JE-1004",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Please perform a close exception investigation for journal entry JE-1004.\nLedger details:\n{\n  \"journal_id\": \"JE-1004\",\n  \"account\": \"300090\",\n  \"cost_center\": \"CC-1000\",\n  \"entity\": \"US01\",\n  \"amount\": 180000.0,\n  \"currency\": \"USD\",\n  \"posting_date\": \"2026-07-05T23:30:00\",\n  \"period\": \"07-2026\",\n  \"created_by\": \"ANALYST_04\",\n  \"approved_by\": \"MANAGER_04\",\n  \"description\": \"Special manual alignment adjustment to retained earnings to balance variance\",\n  \"source_system\": \"SAP_MANUAL\",\n  \"document_id\": \"DOC-10297\",\n  \"authorization_ref\": \"ADJ-99\"\n}\n\nDeterministic rule failures:\n[\n  {\n    \"rule\": \"Sensitive Account Check\",\n    \"error\": \"Violation: Manual entry posted to sensitive general ledger account (300090).\"\n  }\n]"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_primary_control": "Sensitive Account",
+        "expected_routing": "Escalate to Controller",
+        "risk_score": 40,
+        "triage_action": "ESCALATE_TO_HUMAN",
+        "num_failures": 1,
+        "notes": "Manual posting to Retained Earnings 300090. No historical memo -> Low confidence."
+      }
+    },
+    {
+      "eval_case_id": "duplicate_freight_JE-1006",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Please perform a close exception investigation for journal entry JE-1006.\nLedger details:\n{\n  \"journal_id\": \"JE-1006\",\n  \"account\": \"610500\",\n  \"cost_center\": \"CC-4030\",\n  \"entity\": \"US01\",\n  \"amount\": 55000.0,\n  \"posting_date\": \"2026-07-02T09:45:00\",\n  \"period\": \"07-2026\",\n  \"created_by\": \"ANALYST_01\",\n  \"approved_by\": \"MANAGER_01\",\n  \"description\": \"Monthly freight forwarding charges allocation\",\n  \"source_system\": \"SAP_MANUAL\",\n  \"document_id\": \"DOC-88393\",\n  \"authorization_ref\": \"FRT-AUG-1\"\n}\n\nDeterministic rule failures:\n[\n  {\n    \"rule\": \"Duplicate Entry Check\",\n    \"error\": \"Violation: Potential duplicate detected with JE-1005 posted at 2026-07-02T09:00:00.\"\n  }\n]"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_primary_control": "Duplicate Entry",
+        "expected_routing": "Escalate to Controller",
+        "risk_score": 20,
+        "triage_action": "ESCALATE_TO_HUMAN",
+        "num_failures": 1,
+        "notes": "Exact dup of JE-1005 (amount/account/cc/entity) within 45 minutes."
+      }
+    },
+    {
+      "eval_case_id": "sensitive_suspense_roundnum_JE-1007",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Please perform a close exception investigation for journal entry JE-1007.\nLedger details:\n{\n  \"journal_id\": \"JE-1007\",\n  \"account\": \"400500\",\n  \"cost_center\": \"CC-9999\",\n  \"entity\": \"US01\",\n  \"amount\": 500000.0,\n  \"currency\": \"USD\",\n  \"posting_date\": \"2026-07-02T16:00:00\",\n  \"period\": \"07-2026\",\n  \"created_by\": \"ANALYST_02\",\n  \"approved_by\": \"MANAGER_02\",\n  \"description\": \"Temporary clearing entry for balancing sheet mismatch\",\n  \"source_system\": \"SAP_MANUAL\",\n  \"document_id\": \"DOC-10298\",\n  \"authorization_ref\": null\n}\n\nDeterministic rule failures:\n[\n  {\n    \"rule\": \"Materiality Check\",\n    \"error\": \"Violation: Manual entry amount ($500,000.00) exceeds materiality threshold ($250,000.00) with no authorization reference.\"\n  },\n  {\n    \"rule\": \"Sensitive Account Check\",\n    \"error\": \"Violation: Manual entry posted to sensitive general ledger account (400500).\"\n  }\n]"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_primary_control": "Sensitive Account",
+        "expected_routing": "Escalate to Controller",
+        "risk_score": 80,
+        "triage_action": "ESCALATE_TO_HUMAN",
+        "num_failures": 2,
+        "notes": "$500,000.00 round number to suspense/clearing 400500, null auth."
+      }
+    },
+    {
+      "eval_case_id": "clean_automated_JE-1000",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Please perform a close exception investigation for journal entry JE-1000.\nLedger details:\n{\n  \"journal_id\": \"JE-1000\",\n  \"account\": \"180200\",\n  \"cost_center\": \"CC-9010\",\n  \"entity\": \"US01\",\n  \"amount\": 12500.0,\n  \"currency\": \"USD\",\n  \"posting_date\": \"2026-07-01T08:00:00\",\n  \"period\": \"07-2026\",\n  \"created_by\": \"SYS_AUTO\",\n  \"approved_by\": \"SYS_AUTO\",\n  \"description\": \"Amortization of prepaid software license - July 2026\",\n  \"source_system\": \"SAP_SYSTEM\",\n  \"document_id\": \"DOC-99210\",\n  \"authorization_ref\": \"AUTO-REF-88\"\n}\n\nDeterministic rule failures:\n[]"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_primary_control": "None",
+        "expected_routing": "Approve (with note)",
+        "risk_score": 0,
+        "triage_action": "AUTO_APPROVE",
+        "num_failures": 0,
+        "notes": "System-automated amortization. No violations -> agent must NOT invent one."
+      }
+    }
+  ]
+}
