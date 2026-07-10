@@ -876,36 +876,35 @@
           <pre class="mermaid" style="background: transparent !important; border: none !important; color: #111 !important;">
             flowchart TD
                 subgraph Source ["Mixed Input Source"]
-                    A["Mixed Queue Logs: JEs, Invoices, Expenses"] -->|Ingestion| B["Stage 1: Deterministic Control Rules"]
+                    A["Mixed Queue Logs"] --> B["Stage 1: Deterministic Controls"]
                 end
 
                 subgraph Platform ["ADK Multi-Agent Platform"]
-                    B -->|Exceptions Flagged| C["Coordinator Router Agent"]
-                    C -->|JE| D["Close Specialist Worker"]
-                    C -->|Invoice| E["Billing Specialist Worker"]
-                    C -->|Expense| F["Expense Specialist Worker"]
+                    B --> C["Coordinator Router Agent"]
+                    C --> D["Close Specialist Worker"]
+                    C --> E["Billing Specialist Worker"]
+                    C --> F["Expense Specialist Worker"]
                     
-                    D -->|RAG Search| G[("Finance Policies / MSA Contracts / Memory")]
-                    E -->|RAG Search| G
-                    F -->|RAG Search| G
+                    D --> G["Finance Policies / Contracts / Memos"]
+                    E --> G
+                    F --> G
                     
-                    D -->|Draft Report| H["Critic Auditor Agent"]
-                    E -->|Draft Report| H
-                    F -->|Draft Report| H
-                    H -->|Grounding Audit| H
+                    D --> H["Critic Auditor Agent"]
+                    E --> H
+                    F --> H
                 end
 
                 subgraph UI ["HITL Governance Dashboard"]
-                    H -->|Audit Pass| I["Human Verification Workspace"]
-                    I -->|Reviewer Signature| J["Tamper-Evident JSON Audit Packet"]
-                    J -->|Historical Feedback| G
+                    H --> I["Human Verification Workspace"]
+                    I --> J["Tamper-Evident JSON Audit Packet"]
+                    J --> G
                 end
 
                 subgraph Ops ["Observability & Evaluations"]
-                    D -->|OTel Tracing| K["OpenTelemetry SDK"]
-                    E -->|OTel Tracing| K
-                    F -->|OTel Tracing| K
-                    K -->|Span Exporter| L["Langfuse Observability Dashboard"]
+                    D --> K["OpenTelemetry SDK"]
+                    E --> K
+                    F --> K
+                    K --> L["Langfuse Observability Dashboard"]
                 end
           </pre>
         </div>
