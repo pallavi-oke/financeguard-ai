@@ -90,6 +90,9 @@ async def investigate_exception(transaction_id: str):
     """
     api_key = os.environ.get("GOOGLE_API_KEY")
     api_key_configured = bool(api_key and api_key != "YOUR_GEMINI_API_KEY_HERE" and "placeholder" not in api_key.lower())
+    is_cloud_run = os.environ.get("K_SERVICE") is not None
+    
+    use_live_pipeline = api_key_configured or is_cloud_run
     
     feed = get_mixed_feed()
     target_tx = None
@@ -104,7 +107,7 @@ async def investigate_exception(transaction_id: str):
         
     rules = run_deterministic_rules(target_tx)
     
-    if api_key_configured:
+    if use_live_pipeline:
         try:
             report_str, critic_res, gov_res, spec_name, evidence_bundle, coord_res = await run_pipeline(target_tx, rules)
             specialist_res = json.loads(report_str)

@@ -873,7 +873,7 @@
         </p>
         
         <div class="arch-container">
-          <pre class="mermaid" style="background: transparent !important; border: none !important; color: #111 !important;">
+          <pre id="arch-mermaid" style="background: transparent !important; border: none !important; color: #fff !important;">
             flowchart TD
                 subgraph Source ["Mixed Input Source"]
                     A["Mixed Queue Logs"] --> B["Stage 1: Deterministic Controls"]
@@ -1081,7 +1081,7 @@ export OTEL_SERVICE_NAME="finance-control-center"</code></pre>
 
     window.onload = function() {
       // Init Mermaid
-      mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+      mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
       
       // Load initial offline values, then fetch live backend database
       DATASET = JSON.parse(JSON.stringify(OFFLINE_DATASET));
@@ -1221,8 +1221,22 @@ export OTEL_SERVICE_NAME="finance-control-center"</code></pre>
       document.getElementById(tabId).classList.add('active');
       evt.currentTarget.classList.add('active');
       
-      if(tabId === 'tab-architecture') {
-        mermaid.init();
+      if (tabId === 'tab-architecture') {
+        const pre = document.getElementById("arch-mermaid");
+        if (pre && !pre.hasAttribute("data-processed")) {
+          pre.classList.add("mermaid");
+          try {
+            if (typeof mermaid !== 'undefined') {
+              if (typeof mermaid.run === 'function') {
+                mermaid.run();
+              } else if (typeof mermaid.init === 'function') {
+                mermaid.init(undefined, pre);
+              }
+            }
+          } catch(e) {
+            console.error("Mermaid render error:", e);
+          }
+        }
       }
     }
 

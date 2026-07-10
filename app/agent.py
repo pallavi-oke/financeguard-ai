@@ -28,13 +28,13 @@ if os.environ.get("GOOGLE_API_KEY"):
     os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "False"
 else:
     os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
-    os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
+    os.environ["GOOGLE_CLOUD_LOCATION"] = "us-east1"
     try:
         _, project_id = google.auth.default()
         os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
     except Exception:
         if "GOOGLE_CLOUD_PROJECT" not in os.environ:
-            os.environ["GOOGLE_CLOUD_PROJECT"] = "mock-gcp-project"
+            os.environ["GOOGLE_CLOUD_PROJECT"] = "financeguard-ai-demo"
 
 # Shared Model Configuration
 SHARED_MODEL = Gemini(
