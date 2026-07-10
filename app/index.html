@@ -876,30 +876,36 @@
           <pre class="mermaid" style="background: transparent !important; border: none !important; color: #111 !important;">
             flowchart TD
                 subgraph Source ["Mixed Input Source"]
-                    A[Mixed Queue Logs: JEs, Invoices, Expenses] -->|Ingestion| B[Stage 1: Deterministic Control Rules]
+                    A["Mixed Queue Logs: JEs, Invoices, Expenses"] -->|Ingestion| B["Stage 1: Deterministic Control Rules"]
                 end
 
-                subgraph ADK ["ADK Multi-Agent Platform (Gemini 3.5 Flash)"]
-                    B -->|Exceptions Flagged| C[Coordinator Router Agent]
-                    C -->|JE| D[Close Specialist Worker]
-                    C -->|Invoice| E[Billing Specialist Worker]
-                    C -->|Expense| F[Expense Specialist Worker]
+                subgraph Platform ["ADK Multi-Agent Platform"]
+                    B -->|Exceptions Flagged| C["Coordinator Router Agent"]
+                    C -->|JE| D["Close Specialist Worker"]
+                    C -->|Invoice| E["Billing Specialist Worker"]
+                    C -->|Expense| F["Expense Specialist Worker"]
                     
-                    D & E & F -->|RAG Search| G[(Finance Policies / MSA Contracts / Memory)]
+                    D -->|RAG Search| G[("Finance Policies / MSA Contracts / Memory")]
+                    E -->|RAG Search| G
+                    F -->|RAG Search| G
                     
-                    D & E & F -->|Draft Report| H[Critic Auditor Agent]
+                    D -->|Draft Report| H["Critic Auditor Agent"]
+                    E -->|Draft Report| H
+                    F -->|Draft Report| H
                     H -->|Grounding Audit| H
                 end
 
                 subgraph UI ["HITL Governance Dashboard"]
-                    H -->|Audit Pass| I[Human Verification Workspace]
-                    I -->|Reviewer Signature| J[Tamper-Evident JSON Audit Packet]
+                    H -->|Audit Pass| I["Human Verification Workspace"]
+                    I -->|Reviewer Signature| J["Tamper-Evident JSON Audit Packet"]
                     J -->|Historical Feedback| G
                 end
 
                 subgraph Ops ["Observability & Evaluations"]
-                    D & E & F -->|OTel Tracing| K[OpenTelemetry SDK]
-                    K -->|Span Exporter| L[Langfuse Observability Dashboard]
+                    D -->|OTel Tracing| K["OpenTelemetry SDK"]
+                    E -->|OTel Tracing| K
+                    F -->|OTel Tracing| K
+                    K -->|Span Exporter| L["Langfuse Observability Dashboard"]
                 end
           </pre>
         </div>
