@@ -67,6 +67,9 @@ app: FastAPI = get_fast_api_app(
 app.title = "close-investigator"
 app.description = "API for interacting with the Agent close-investigator"
 
+# Remove any default root routes registered by ADK so our custom dashboard root takes precedence
+app.routes = [r for r in app.routes if r.path != "/"]
+
 # Mount custom FinanceGuard AI Dashboard routes
 from app.dashboard_server import router as dashboard_router
 app.include_router(dashboard_router)
