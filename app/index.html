@@ -641,19 +641,19 @@
         <span class="metric-sub">Mixed Close, Invoice & Expense logs</span>
       </div>
       <div class="metric-card" style="border-color: rgba(16, 185, 129, 0.2);">
-        <span class="metric-label">Auto-Approved (Low Risk)</span>
-        <span class="metric-value" style="color: var(--accent);">18 Records</span>
+        <span class="metric-label">Cleared by Deterministic Controls</span>
+        <span class="metric-value" style="color: var(--accent);" id="auto-approved-count">17 Records</span>
         <span class="metric-sub">Cleared deterministic check gates</span>
       </div>
       <div class="metric-card" style="border-color: rgba(239, 68, 68, 0.2);">
         <span class="metric-label">Escalated Exceptions</span>
-        <span class="metric-value" style="color: var(--danger);" id="escalated-count">3 Exceptions</span>
+        <span class="metric-value" style="color: var(--danger);" id="escalated-count">8 Exceptions</span>
         <span class="metric-sub">Seeded exception profiles in queue</span>
       </div>
       <div class="metric-card">
         <span class="metric-label">Signed Audit Packages</span>
         <span class="metric-value" id="audit-logged-count">0 Logs</span>
-        <span class="metric-sub">Archived with tamper-evident paper trail</span>
+        <span class="metric-sub">Preserved with tamper-evident audit trail</span>
       </div>
     </div>
 
@@ -673,12 +673,12 @@
           <h3 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.25rem;">
             Modules
           </h3>
-          <div class="module-item active" id="mod-CLOSE" onclick="switchModule('CLOSE')">
+          <div class="module-item" id="mod-CLOSE" onclick="switchModule('CLOSE')">
             <span class="module-title">Financial Close</span>
             <span class="module-desc">Screen journal entries for cutoff, SoD, and materiality limits.</span>
             <span class="module-status" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">Review Required</span>
           </div>
-          <div class="module-item" id="mod-BILLING" onclick="switchModule('BILLING')">
+          <div class="module-item active" id="mod-BILLING" onclick="switchModule('BILLING')">
             <span class="module-title">Billing Accuracy</span>
             <span class="module-desc">Match vendor invoices against rate contracts and PO caps.</span>
             <span class="module-status" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">Review Required</span>
@@ -748,20 +748,20 @@
             <!-- RAG Context and AI Analysis Split Grid -->
             <div class="split-grid">
               
-              <!-- Left: RAG retrieved documents -->
+              <!-- Left: evidence retrieved documents -->
               <div>
-                <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #fff;">Retrieved RAG Sources</h3>
+                <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #fff;">Retrieved Evidence Sources</h3>
                 <div class="source-box">
                   <h5 id="policy-label">Policy Documentation</h5>
-                  <p id="policy-content">Loading RAG source...</p>
+                  <p id="policy-content">Awaiting investigation run...</p>
                 </div>
                 <div class="source-box">
                   <h5 id="history-label">Historical Explanations / Contracts</h5>
-                  <p id="history-content">Loading RAG source...</p>
+                  <p id="history-content">Awaiting investigation run...</p>
                 </div>
                 <div class="source-box" style="margin-top: 1rem;">
                   <h5>Retrieved Evidence Registry Snapshot</h5>
-                  <pre id="evidence-registry-content" style="color: var(--text-muted); font-size: 0.8rem; overflow: auto; max-height: 150px; background: rgba(0,0,0,0.25); padding: 0.5rem; border-radius: 6px; font-family: monospace;">No registry compiled yet.</pre>
+                  <pre id="evidence-registry-content" style="color: var(--text-muted); font-size: 0.8rem; overflow: auto; max-height: 150px; background: rgba(0,0,0,0.25); padding: 0.5rem; border-radius: 6px; font-family: monospace;">Awaiting investigation run.</pre>
                 </div>
               </div>
 
@@ -787,13 +787,13 @@
                     <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
                     AI Investigative Hypothesis
                   </h4>
-                  <p id="hypothesis-text">Loading...</p>
+                  <p id="hypothesis-text">Awaiting investigation run.</p>
                 </div>
 
                 <div class="report-section report-hypotheses" style="margin-top: 0.75rem;">
                   <h4>Missing Required Evidence</h4>
                   <ul id="missing-evidence-list" style="color: var(--danger); font-size: 0.9rem; padding-left: 1.25rem; margin: 0;">
-                    <li>None flagged.</li>
+                    <li>Pending investigation</li>
                   </ul>
                 </div>
 
@@ -802,13 +802,13 @@
                     <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                     Critic Auditor Verdict
                   </h4>
-                  <p id="critic-verdict-text">[PASS] The investigation report is fully grounded and follows standard audit conventions.</p>
+                  <p id="critic-verdict-text">Pending investigation.</p>
                 </div>
 
                 <div class="report-section report-critic" style="margin-top: 0.75rem;">
                   <h4>Critic Claims Grounding Checks</h4>
                   <ul id="critic-claim-checks-list" style="font-size: 0.85rem; padding-left: 1.25rem; color: var(--text-muted); margin: 0;">
-                    <li>Awaiting AI pipeline execution.</li>
+                    <li>Pending investigation</li>
                   </ul>
                 </div>
 
@@ -818,7 +818,7 @@
                     <span id="gov-gate-verdict-badge" class="tag">PENDING</span>
                   </h4>
                   <ul id="gov-gate-reasons" style="font-size: 0.85rem; color: var(--text-muted); padding-left: 1.25rem; margin: 0;">
-                    <li>Awaiting AI pipeline execution.</li>
+                    <li>Pending investigation</li>
                   </ul>
                   <div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--text-muted);">
                     <strong>Triggered Compliance Controls:</strong> <span id="gov-gate-controls">None</span>
@@ -962,8 +962,8 @@ export OTEL_SERVICE_NAME="finance-control-center"</code></pre>
     const API_BASE = (window.location.protocol === "file:") ? "http://127.0.0.1:8080/api" : "/api";
     
     let DATASET = {};
-    let activeModule = "CLOSE";
-    let activeId = "JE-1001";
+    let activeModule = "BILLING";
+    let activeId = "INV-2001";
     let selectedDecision = null;
     let signedPackets = {};
     
@@ -1154,12 +1154,20 @@ export OTEL_SERVICE_NAME="finance-control-center"</code></pre>
           confidence: "Pending",
           facts: ["Perform real-time agent pipeline to fetch facts."],
           hypothesis: "Awaiting investigation run.",
-          critic: "Awaiting investigation run.",
-          raw_tx: tx
+          critic: "Pending investigation.",
+          raw_tx: tx,
+          missing_evidence: "Pending investigation",
+          critic_checks: [],
+          gov_verdict: "PENDING",
+          gov_reasons: ["Pending investigation"],
+          gov_controls: "None",
+          evidence_registry: "Awaiting investigation run."
         };
       });
       
       document.getElementById("escalated-count").innerText = `${escalatedCount} Exceptions`;
+      const autoApprovedCount = 25 - escalatedCount;
+      document.getElementById("auto-approved-count").innerText = `${autoApprovedCount} Records`;
       loadModuleQueue(activeModule);
     }
 
@@ -1183,50 +1191,12 @@ export OTEL_SERVICE_NAME="finance-control-center"</code></pre>
         item.hypothesis = result.specialist_output.rationale + " " + result.specialist_output.hypotheses.map(h => h.statement).join(' ');
         item.critic = `[${result.critic_output.verdict}] ${result.critic_output.reasons}`;
         item.confidence = result.specialist_output.confidence;
-        
-        // Render evidence registries
-        document.getElementById("evidence-registry-content").innerText = JSON.stringify(result.evidence_registry, null, 2);
-        
-        // Render missing evidence
-        const missingEl = document.getElementById("missing-evidence-list");
-        missingEl.innerHTML = "";
-        if (result.specialist_output.missing_evidence.length === 0) {
-          missingEl.innerHTML = "<li>None flagged.</li>";
-        } else {
-          result.specialist_output.missing_evidence.forEach(m => {
-            const li = document.createElement("li");
-            li.innerText = m;
-            missingEl.appendChild(li);
-          });
-        }
-        
-        // Render critic claim validation details
-        const ccEl = document.getElementById("critic-claim-checks-list");
-        ccEl.innerHTML = "";
-        result.critic_output.claim_checks.forEach(cc => {
-          const li = document.createElement("li");
-          li.innerHTML = `Claim <strong>${cc.claim_id}</strong> is <span class="tag ${cc.status === 'SUPPORTED' ? 'tag-success' : 'tag-danger'}" style="padding: 0.1rem 0.3rem; font-size:0.75rem;">${cc.status}</span>: ${cc.reason}`;
-          ccEl.appendChild(li);
-        });
-        
-        // Render governance decision
-        const govVerdictBadge = document.getElementById("gov-gate-verdict-badge");
-        govVerdictBadge.innerText = result.governance_gate.action;
-        govVerdictBadge.className = result.governance_gate.passed ? "tag tag-success" : "tag tag-danger";
-        
-        const govReasonsEl = document.getElementById("gov-gate-reasons");
-        govReasonsEl.innerHTML = "";
-        if (result.governance_gate.reasons.length === 0) {
-          govReasonsEl.innerHTML = "<li>All checks passed.</li>";
-        } else {
-          result.governance_gate.reasons.forEach(r => {
-            const li = document.createElement("li");
-            li.innerText = r;
-            govReasonsEl.appendChild(li);
-          });
-        }
-        
-        document.getElementById("gov-gate-controls").innerText = result.governance_gate.triggered_controls.join(", ") || "None";
+        item.missing_evidence = result.specialist_output.missing_evidence;
+        item.critic_checks = result.critic_output.claim_checks;
+        item.gov_verdict = result.governance_gate.action;
+        item.gov_reasons = result.governance_gate.reasons.length === 0 ? ["All checks passed."] : result.governance_gate.reasons;
+        item.gov_controls = result.governance_gate.triggered_controls.join(", ") || "None";
+        item.evidence_registry = JSON.stringify(result.evidence_registry, null, 2);
         
         // Refresh detail views
         loadWorkspaceItem(activeId);
@@ -1348,6 +1318,60 @@ export OTEL_SERVICE_NAME="finance-control-center"</code></pre>
       });
       
       document.getElementById("critic-verdict-text").innerText = item.critic;
+
+      // Render missing evidence list
+      const missingEl = document.getElementById("missing-evidence-list");
+      missingEl.innerHTML = "";
+      if (item.missing_evidence === "Pending investigation") {
+        missingEl.innerHTML = "<li>Pending investigation</li>";
+      } else if (!item.missing_evidence || item.missing_evidence.length === 0) {
+        missingEl.innerHTML = "<li>None identified</li>";
+      } else {
+        item.missing_evidence.forEach(m => {
+          const li = document.createElement("li");
+          li.innerText = m;
+          missingEl.appendChild(li);
+        });
+      }
+
+      // Render critic claim checks
+      const ccEl = document.getElementById("critic-claim-checks-list");
+      ccEl.innerHTML = "";
+      if (!item.critic_checks || item.critic_checks.length === 0) {
+        ccEl.innerHTML = "<li>Pending investigation</li>";
+      } else {
+        item.critic_checks.forEach(cc => {
+          const li = document.createElement("li");
+          li.innerHTML = `Claim <strong>${cc.claim_id}</strong> is <span class="tag ${cc.status === 'SUPPORTED' ? 'tag-success' : 'tag-danger'}" style="padding: 0.1rem 0.3rem; font-size:0.75rem;">${cc.status}</span>: ${cc.reason}`;
+          ccEl.appendChild(li);
+        });
+      }
+
+      // Render governance decision
+      const govVerdictBadge = document.getElementById("gov-gate-verdict-badge");
+      govVerdictBadge.innerText = item.gov_verdict || "PENDING";
+      if (item.gov_verdict === "PENDING" || !item.gov_verdict) {
+        govVerdictBadge.className = "tag";
+      } else if (item.gov_verdict === "AUTO_APPROVE" || item.gov_verdict === "PASS") {
+        govVerdictBadge.className = "tag tag-success";
+      } else {
+        govVerdictBadge.className = "tag tag-danger";
+      }
+
+      const govReasonsEl = document.getElementById("gov-gate-reasons");
+      govReasonsEl.innerHTML = "";
+      if (!item.gov_reasons || item.gov_reasons.length === 0) {
+        govReasonsEl.innerHTML = "<li>Pending investigation</li>";
+      } else {
+        item.gov_reasons.forEach(r => {
+          const li = document.createElement("li");
+          li.innerText = r;
+          govReasonsEl.appendChild(li);
+        });
+      }
+
+      document.getElementById("gov-gate-controls").innerText = item.gov_controls || "None";
+      document.getElementById("evidence-registry-content").innerText = item.evidence_registry || "Awaiting investigation run.";
       
       const confidence = document.getElementById("confidence-indicator");
       confidence.innerText = `Confidence: ${item.confidence}`;
