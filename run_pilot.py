@@ -360,7 +360,6 @@ async def run_pipeline(tx: dict, rule_results: dict) -> tuple[str, dict, dict, s
     agent, rag_info, label = _get_specialist_and_rag(spec_name, tx)
     print(f" 2. [{label.upper()}] Gathering evidence & drafting report...")
     
-    await session_service.create_session(app_name="app", user_id="controller", session_id=session_id)
     session = await session_service.get_session(app_name="app", user_id="controller", session_id=session_id)
     session.state["tx_id"] = tx_id
     session.state["rule_failures"] = rule_results["failures"]
@@ -425,7 +424,6 @@ async def run_pipeline(tx: dict, rule_results: dict) -> tuple[str, dict, dict, s
         # --- Stage 3: Critic Verification ---
         print(f" 3. [CRITIC] Auditing specialist report against retrieved source documents...")
         
-        await session_service.create_session(app_name="app", user_id="controller", session_id=session_id)
         runner = Runner(agent=critic_agent, app_name="app", session_service=session_service)
         
         critic_prompt = (
