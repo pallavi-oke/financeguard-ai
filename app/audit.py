@@ -12,7 +12,7 @@ PROJECT_DIR = Path(__file__).resolve().parent.parent
 AUDIT_LOG_DIR = PROJECT_DIR / "audit_packets"
 MANIFEST_PATH = PROJECT_DIR / "audit_manifest.jsonl"
 
-MODEL_ID = "gemini-flash-latest"
+MODEL_ID = "gemini-1.5-flash-002"
 
 
 def compute_canonical_hash(payload: dict) -> str:
