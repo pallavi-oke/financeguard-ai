@@ -41,6 +41,18 @@ def clean_json_text(raw_text: str) -> str:
     return clean.strip()
 
 
+def _get_specialist_and_rag(spec_name: str, tx: dict) -> tuple:
+    """Helper to return the correct specialist agent, associated RAG/evidence info, and name label."""
+    if spec_name == "close_specialist":
+        return close_specialist_agent, "GL policies / historical adjustment memos", "close_specialist"
+    elif spec_name == "billing_specialist":
+        return billing_specialist_agent, "active vendor contracts / rate sheets / PoS policies", "billing_specialist"
+    elif spec_name == "expense_specialist":
+        return expense_specialist_agent, "T&E policies / receipt templates / historical exception approvals", "expense_specialist"
+    else:
+        raise ValueError(f"Unknown specialist name: {spec_name}")
+
+
 def gather_evidence_registry_snapshot(tx: dict, spec_name: str) -> dict:
     """Compiles a static evidence registry snapshot with stable unique IDs for audit provenance.
     
