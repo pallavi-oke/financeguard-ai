@@ -1050,7 +1050,7 @@
                 <button class="btn-opt" id="btn-request" onclick="selectDecision('PENDING_ADDITIONAL_DOCS')">Request Support Document</button>
               </div>
               <textarea id="human-notes" placeholder="Enter override comments or justification notes (mandatory for audit signature)..."></textarea>
-              <button class="submit-btn" onclick="submitDecision()">
+              <button class="submit-btn" id="btn-commit-decision" onclick="submitDecision()">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 Sign Off & Generate Audit Packet
               </button>
@@ -1850,7 +1850,7 @@
       const btnReject = document.getElementById("btn-reject");
       const btnRequest = document.getElementById("btn-request");
       const humanNotes = document.getElementById("human-notes");
-      const submitBtn = document.querySelector(".submit-btn");
+      const submitBtn = document.getElementById("btn-commit-decision");
 
       btnApprove.disabled = isPending;
       btnReject.disabled = isPending;
