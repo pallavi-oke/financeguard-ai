@@ -1868,10 +1868,10 @@
       btnRequest.style.opacity = opacityVal;
       btnRequest.style.cursor = cursorVal;
       
-      // Pre-emphasize Request Support Document for the hero exception case
+      // Pre-emphasize and auto-select Request Support Document for the hero exception case
       if (id === "INV-2001" && !isPending) {
-        btnRequest.style.boxShadow = "0 0 12px rgba(99, 102, 241, 0.6)";
-        btnRequest.style.borderColor = "var(--primary)";
+        selectDecision('PENDING_ADDITIONAL_DOCS');
+        btnRequest.style.boxShadow = "0 0 12px rgba(245, 158, 11, 0.5)";
       } else {
         btnRequest.style.boxShadow = "none";
         btnRequest.style.borderColor = "var(--card-border)";
