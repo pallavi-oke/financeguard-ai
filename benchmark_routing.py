@@ -310,8 +310,8 @@ async def run_benchmark():
             f"{stats['accuracy']:.1f}% [MEASURED]",
             f"{stats['schema_rate']:.1f}% [MEASURED]",
             f"{stats['median_latency']:.1f}ms / {stats['p95_latency']:.1f}ms [MEASURED]",
-            f"${bench_cost:.6f} [MEASURED]",
-            f"${cost_per_1k:.4f} [MEASURED]",
+            f"${bench_cost:.6f} [CALCULATED FROM MEASURED TOKEN USAGE]",
+            f"${cost_per_1k:.4f} [CALCULATED FROM MEASURED TOKEN USAGE]",
             cost_label
         ])
 
