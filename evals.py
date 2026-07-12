@@ -244,7 +244,7 @@ async def run_mode2_live_tests():
                     supported_claims += 1
                 
                 # Metric B: Grounding accuracy against seeded independent status
-                expected_status = get_expected_claim_status(tx_id, claim_id, claim_text)
+                expected_status = get_expected_claim_status(tx_id, claim_text)
                 if status == expected_status:
                     correct_grounding_evals += 1
                     
