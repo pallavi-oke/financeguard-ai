@@ -5,7 +5,6 @@ import asyncio
 import os
 import json
 import time
-import csv
 import subprocess
 from datetime import datetime
 import numpy as np
@@ -38,31 +37,17 @@ def get_gcloud_token():
         pass
     return None
 
-# --- Comparable Cost Bases Config ---
-# 1. Gemini: Hosted Gemini API Pricing
-GEMINI_INPUT_RATE_1M = 1.50   # Paid Standard Tier
-GEMINI_OUTPUT_RATE_1M = 9.00  # Paid Standard Tier
-
-# 2. Gemma: Self-Hosted GPU Infrastructure Model
-# Assumptions:
-# - GPU Instance Type: Google Cloud G2 VM (g2-standard-8) with 1x NVIDIA L4 GPU (24GB VRAM)
-# - Quantization: 4-bit / 8-bit serving via vLLM
-# - Hourly Compute Cost (GPU + CPU VM): $0.48 / hour ($11.52 / day)
-# - Utilization rate: 30% active utilization (typical for internal tools)
-# - Concurrency / Throughput: 10 decisions / minute when active (max capacity ~14,400 decisions / day)
-# - Daily decisions at 30% utilization: 4,320 decisions / day
-# - Cost per 1,000 decisions = Daily compute cost ($11.52) / (Daily decisions / 1,000) = $2.667 / 1,000 decisions.
-# - Idle cost factor: Included in the flat daily compute allocation.
-GEMMA_INFRA_GPU = "NVIDIA L4 (24GB VRAM)"
-GEMMA_HOURLY_RATE = 0.48
-GEMMA_UTILIZATION = 0.30
-GEMMA_DAILY_CAPACITY = 14400
-GEMMA_EST_DECISIONS_DAILY = 4320
-GEMMA_COST_PER_1K = (GEMMA_HOURLY_RATE * 24) / (GEMMA_EST_DECISIONS_DAILY / 1000) # $2.667
-
-# 3. Gemma: Hosted API Pricing (from Gemini API if accessed via AI Studio)
-GEMMA_API_INPUT_RATE_1M = 0.00   # Free developer tier on Google AI Studio
-GEMMA_API_OUTPUT_RATE_1M = 0.00  # Free developer tier on Google AI Studio
+# --- Comparable Pay-As-You-Go Cost Bases ---
+PRICING = {
+    "gemini-3.5-flash": {
+        "input_1m": 1.50,
+        "output_1m": 9.00
+    },
+    "gemma-4-26b-a4b-it-maas": {
+        "input_1m": 0.15,
+        "output_1m": 0.60
+    }
+}
 
 async def call_routing_model(
     client: genai.Client,
@@ -71,10 +56,7 @@ async def call_routing_model(
     project_id: str,
     location: str
 ) -> dict:
-    """Invokes the live model. Raised errors will abort the benchmark execution.
-    
-    No simulation fallbacks allowed.
-    """
+    """Invokes the live serverless model. Raised errors will abort execution."""
     timestamp = datetime.utcnow().isoformat() + "Z"
     start_time = time.time()
     
@@ -82,10 +64,10 @@ async def call_routing_model(
         system_instruction=COORDINATOR_INSTRUCTION,
         response_mime_type="application/json"
     )
+    # Gemini models support Pydantic response_schema directly
     if "gemini" in model_name:
         config.response_schema = CoordinatorOutput
 
-    # Vertex AI Endpoint path vs. standard model ID resolution
     endpoint_path = f"projects/{project_id}/locations/{location}/publishers/google/models/{model_name}"
     
     response = client.models.generate_content(
@@ -103,7 +85,6 @@ async def call_routing_model(
         out_tokens = response.usage_metadata.candidates_token_count
     
     response_id = "N/A"
-    # Try to extract response ID or signature metadata if present
     if hasattr(response, "response_id") and response.response_id:
         response_id = response.response_id
         
@@ -145,7 +126,6 @@ async def run_benchmark():
     api_key = os.environ.get("GOOGLE_API_KEY")
     api_key_configured = bool(api_key and api_key != "YOUR_GEMINI_API_KEY_HERE" and "placeholder" not in api_key.lower())
     
-    # Authenticate GenAI client with standard credentials or active gcloud auth token
     if api_key_configured:
         print(f"Auth Method: API_KEY (AI Studio)")
         client = genai.Client()
@@ -168,7 +148,7 @@ async def run_benchmark():
     target_ids = list(GROUND_TRUTH.keys())
     benchmark_cases = [tx for tx in combined_feed if (tx.get("journal_id") or tx.get("invoice_id") or tx.get("report_id")) in target_ids]
 
-    models = ["gemini-3.5-flash", "gemma-4-31b-it"]
+    models = ["gemini-3.5-flash", "gemma-4-26b-a4b-it-maas"]
     raw_results = []
     summary_stats = {}
 
@@ -207,7 +187,6 @@ async def run_benchmark():
                 try:
                     res = await call_routing_model(client, model, coord_prompt, project_id, location)
                     
-                    # Parse routed specialist
                     routed_specialist = None
                     if res["schema_success"]:
                         try:
@@ -224,7 +203,6 @@ async def run_benchmark():
                     reps_schema.append(res["schema_success"])
                     reps_correct.append(is_correct)
                     
-                    # Record raw request log
                     raw_results.append({
                         "timestamp": res["timestamp"],
                         "model": model,
@@ -268,7 +246,6 @@ async def run_benchmark():
             if aborted:
                 break
                 
-            # Log aggregate for this case
             model_runs.append({
                 "tx_id": tx_id,
                 "latencies": reps_latencies,
@@ -286,7 +263,6 @@ async def run_benchmark():
             summary_stats[model] = {"status": "FAILED", "error": "Model access/authorization failed."}
             continue
 
-        # Compile model statistics
         flat_correct = [c for run in model_runs for c in run["correct"]]
         flat_schema = [s for run in model_runs for s in run["schema"]]
         flat_latencies = [l for run in model_runs for l in run["latencies"]]
@@ -305,7 +281,7 @@ async def run_benchmark():
             "total_out_tokens": sum(flat_out_tokens)
         }
 
-    # --- Export Raw per-request results to JSON ---
+    # --- Export Raw Results ---
     export_path = "benchmark_results.json"
     with open(export_path, "w") as f:
         json.dump(raw_results, f, indent=2)
@@ -324,15 +300,10 @@ async def run_benchmark():
             continue
             
         # Cost math
-        if model == "gemini-3.5-flash":
-            bench_cost = ((stats["total_in_tokens"] / 1_000_000) * GEMINI_INPUT_RATE_1M) + ((stats["total_out_tokens"] / 1_000_000) * GEMINI_OUTPUT_RATE_1M)
-            cost_per_1k = 1000 * (((stats["avg_in_tokens"] / 1_000_000) * GEMINI_INPUT_RATE_1M) + ((stats["avg_out_tokens"] / 1_000_000) * GEMINI_OUTPUT_RATE_1M))
-            cost_label = "Gemini API Paid Tier"
-        else:
-            # Gemma 4 self-hosted VM cost model
-            bench_cost = (stats["total_in_tokens"] + stats["total_out_tokens"]) * 0.0  # free token base in AI studio
-            cost_per_1k = GEMMA_COST_PER_1K
-            cost_label = f"Self-Hosted GPU (1x L4, 30% util)"
+        price_cfg = PRICING[model]
+        bench_cost = ((stats["total_in_tokens"] / 1_000_000) * price_cfg["input_1m"]) + ((stats["total_out_tokens"] / 1_000_000) * price_cfg["output_1m"])
+        cost_per_1k = 1000 * (((stats["avg_in_tokens"] / 1_000_000) * price_cfg["input_1m"]) + ((stats["avg_out_tokens"] / 1_000_000) * price_cfg["output_1m"]))
+        cost_label = f"Vertex AI MaaS (Standard Pay-As-You-Go)"
 
         report_rows.append([
             model,
@@ -340,7 +311,7 @@ async def run_benchmark():
             f"{stats['schema_rate']:.1f}% [MEASURED]",
             f"{stats['median_latency']:.1f}ms / {stats['p95_latency']:.1f}ms [MEASURED]",
             f"${bench_cost:.6f} [MEASURED]",
-            f"${cost_per_1k:.4f} [MODELED]",
+            f"${cost_per_1k:.4f} [MEASURED]",
             cost_label
         ])
 
@@ -349,17 +320,6 @@ async def run_benchmark():
         report_rows
     )
     print("=" * 80)
-    
-    # Print GPU Assumptions
-    print("\n🔍 SELF-HOSTED GPU COST MODEL ASSUMPTIONS:")
-    print(f"  - Server Infrastructure: {GEMMA_INFRA_GPU}")
-    print(f"  - Compute Instance Rate: ${GEMMA_HOURLY_RATE:.2f}/hr (Google Cloud G2 VM)")
-    print(f"  - Model Optimization: 4-bit quantized serving via vLLM")
-    print(f"  - Idle Allocation: Daily instances hosted flat rate (${GEMMA_HOURLY_RATE * 24:.2f}/day)")
-    print(f"  - Utilization Rate: {GEMMA_UTILIZATION * 100:.0f}% active concurrency")
-    print(f"  - Average Decisions Daily: {GEMMA_EST_DECISIONS_DAILY} decisions/day")
-    print(f"  - Formula: Daily Instance Cost / (Daily Decisions / 1000) = ${GEMMA_COST_PER_1K:.4f}")
-    print("-" * 80)
 
 if __name__ == "__main__":
     asyncio.run(run_benchmark())
