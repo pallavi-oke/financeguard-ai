@@ -1,0 +1,3242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASCENT in Microsoft Teams — Live Role-Play Demo (Adam Jones & John Smith)</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='8' fill='%230f172a'/%3E%3Cpath d='M3.5 30 L11.5 15.5 L15.2 19.8 L22 6.5 L33 30 Z' fill='%231e3a8a'/%3E%3Cpath d='M11.5 15.5 L7.8 22.2 L10.4 21.1 L12 22.8 L14 19.6 Z' fill='%23dbeafe'/%3E%3Cpath d='M22 6.5 L15 20.2 L18 18.7 L20 21.2 L22 16.2 Z' fill='%23ffffff'/%3E%3Cpath d='M22 6.5 L22 16.2 L24.8 19.8 L26.6 18.1 L28.9 21 Z' fill='%2360a5fa'/%3E%3Ccircle cx='22' cy='6.2' r='2' fill='%23fde047'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --teams-header: #292841;
+      --teams-rail: #33344a;
+      --teams-purple: #5b5fc7;
+      --teams-purple-hover: #4f52b2;
+      --teams-purple-light: #e8ebfa;
+      --bg-chat: #f5f5f7;
+      --bg-sidebar: #ffffff;
+      --card-bg: #ffffff;
+      --border: #e1dfdd;
+      --text-main: #242424;
+      --text-muted: #616161;
+      --green: #107c41;
+      --green-bg: #e6f4ea;
+      --amber: #d83b01;
+      --amber-bg: #fef4e8;
+      --red: #c50f1f;
+      --red-bg: #fde7e9;
+      --blue: #0078d4;
+      --blue-bg: #e5f1fb;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: #e9eaf0;
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* TOP MICROSOFT TEAMS APP BAR + ROLE PLAY SWITCHER */
+    .teams-topbar {
+      height: 54px;
+      background: var(--teams-header);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .teams-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .teams-logo {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(155deg, #0b132b 0%, #1e3a8a 58%, #0284c7 100%);
+      border: 1px solid rgba(125, 211, 252, 0.5);
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .everest-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .northstar-pill {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: #e2e8f0;
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-left: 8px;
+    }
+
+    /* ROLE PLAY SWITCHER */
+    .persona-switcher {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.28);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .persona-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #cbd5e1;
+      padding: 0 8px;
+      font-weight: 700;
+    }
+    .persona-btn {
+      border: none;
+      background: transparent;
+      color: #e2e8f0;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .persona-btn.active {
+      background: var(--teams-purple);
+      color: #ffffff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .persona-btn:hover:not(.active) {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* MAIN TEAMS LAYOUT */
+    .teams-shell {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 64px 290px 1fr;
+      overflow: hidden;
+    }
+
+    /* LEFT ICON RAIL */
+    .teams-rail {
+      background: var(--teams-rail);
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 14px;
+      gap: 18px;
+      font-size: 10px;
+    }
+    .rail-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.7;
+    }
+    .rail-item.active {
+      opacity: 1;
+      color: #fff;
+      position: relative;
+    }
+    .rail-item.active::before {
+      content: "";
+      position: absolute;
+      left: -14px;
+      top: 4px;
+      bottom: 4px;
+      width: 3px;
+      background: #8b8cc7;
+      border-radius: 2px;
+    }
+    .rail-icon {
+      font-size: 18px;
+    }
+    .rail-ascent-divider {
+      width: 28px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.16);
+      margin: 2px 0;
+    }
+    .rail-ascent-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      background: linear-gradient(155deg, #0b132b 0%, #1e3a8a 58%, #0284c7 100%);
+      border: 1px solid rgba(125, 211, 252, 0.55);
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* USE-CASE / SCENARIO LIST SIDEBAR */
+    .scenario-sidebar {
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .sidebar-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-header h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .sidebar-header p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .scenario-list {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .scenario-item {
+      border: 1px solid transparent;
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 11px 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .scenario-item:hover {
+      background: #f0f2f9;
+    }
+    .scenario-item.active {
+      background: var(--teams-purple-light);
+      border-color: var(--teams-purple);
+    }
+    .sc-step {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--teams-purple);
+      letter-spacing: 0.04em;
+    }
+    .sc-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 2px 0;
+    }
+    .sc-desc {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    /* CHAT CANVAS */
+    .chat-pane {
+      background: var(--bg-chat);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      height: 56px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .chat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .bot-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(155deg, #0b132b 0%, #1e3a8a 58%, #0284c7 100%);
+      border: 1.5px solid rgba(125, 211, 252, 0.65);
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.22);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .bot-avatar .everest-svg {
+      border-radius: 8.5px;
+    }
+    .chat-header .bot-avatar::after {
+      content: "";
+      position: absolute;
+      right: -3px;
+      bottom: -3px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #10b981;
+      border: 2px solid #ffffff;
+    }
+    .chat-title {
+      font-size: 14.5px;
+      font-weight: 700;
+    }
+    .chat-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+    .active-user-pill {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--teams-purple-light);
+      color: var(--teams-purple);
+      border: 1px solid #c5cbf5;
+    }
+
+    /* MESSAGES STREAM */
+    .chat-stream {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .sc-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .mode-pill {
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .mode-pill.push {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+    .mode-pill.pull {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #7dd3fc;
+    }
+
+    /* TRIGGER BANNER (SHOWS PUSH VS PULL CLEARLY) */
+    .trigger-banner {
+      background: #fff;
+      border-left: 4px solid var(--teams-purple);
+      border-top: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 9px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      max-width: 860px;
+    }
+    .trigger-banner.push-mode {
+      border-left-color: #15803d;
+      background: linear-gradient(90deg, #f0fdf4 0%, #ffffff 32%);
+    }
+    .trigger-banner.pull-mode {
+      border-left-color: #0284c7;
+      background: linear-gradient(90deg, #f0f9ff 0%, #ffffff 32%);
+    }
+    .trigger-type {
+      font-weight: 700;
+      color: var(--teams-purple);
+      margin-right: 6px;
+    }
+    .trigger-banner.push-mode .trigger-type {
+      color: #166534;
+    }
+    .trigger-banner.pull-mode .trigger-type {
+      color: #0369a1;
+    }
+
+    /* USER BUBBLE (WHEN FSE OR FSM ASKS A QUESTION) */
+    .user-msg-row {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+      max-width: 860px;
+      animation: cardSlideIn 0.2s ease-out;
+    }
+    .user-bubble {
+      background: #e8ebfa;
+      color: #1e1e2d;
+      border: 1px solid #c5cbf5;
+      padding: 10px 14px;
+      border-radius: 10px 10px 2px 10px;
+      font-size: 13px;
+      max-width: 540px;
+    }
+    .user-bubble-meta {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--teams-purple);
+      margin-bottom: 3px;
+    }
+    .bot-followup-bubble {
+      background: #ffffff;
+      border: 1px solid #d8ddd3;
+      border-left: 3.5px solid var(--teams-purple);
+      border-radius: 2px 10px 10px 10px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: #1e293b;
+      max-width: 680px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+      animation: cardSlideIn 0.22s ease-out;
+    }
+
+    /* ADAPTIVE CARD CONTAINER */
+    .bot-msg-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 860px;
+    }
+    .adaptive-card {
+      flex: 1;
+      background: var(--card-bg);
+      border: 1px solid #d2d0ce;
+      border-top: 4px solid var(--teams-purple);
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      padding: 16px 18px;
+    }
+    .ac-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .ac-source {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--teams-purple);
+      letter-spacing: 0.04em;
+    }
+    .ac-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .badge-green { background: var(--green-bg); color: var(--green); }
+    .badge-amber { background: var(--amber-bg); color: var(--amber); }
+    .badge-red { background: var(--red-bg); color: var(--red); }
+    .badge-blue { background: var(--blue-bg); color: var(--blue); }
+
+    .ac-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .ac-sub {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* ADAPTIVE CARD FACT SET */
+    .ac-facts {
+      background: #fafafa;
+      border: 1px solid #edebe9;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      display: grid;
+      grid-template-columns: 155px 1fr;
+      row-gap: 6px;
+      column-gap: 10px;
+      font-size: 12.5px;
+    }
+    .fact-k { font-weight: 700; color: #484644; }
+    .fact-v { color: #242424; }
+
+    /* COMPACT TABLE INSIDE ADAPTIVE CARD */
+    .ac-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    .ac-table th {
+      text-align: left;
+      padding: 6px 8px;
+      background: #f3f2f1;
+      color: #484644;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+    }
+    .ac-table td {
+      padding: 7px 8px;
+      border-bottom: 1px solid #f3f2f1;
+    }
+
+    /* GAMIFIED SKILLS PASSPORT (ANIMATED RINGS + 3D FLIP STAMPS + RACE TRACK) */
+    @keyframes foilShimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.35); }
+      50% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+    }
+    @keyframes amberPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.38); }
+      50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+    }
+    @keyframes streakFlicker {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+    @keyframes stampSlam {
+      0% { opacity: 0; transform: scale(2.6) rotate(-20deg); }
+      65% { opacity: 1; transform: scale(0.92) rotate(-8deg); }
+      82% { transform: scale(1.06) rotate(-11deg); }
+      100% { opacity: 1; transform: scale(1) rotate(-10deg); }
+    }
+    @keyframes shockwaveRing {
+      0% { opacity: 0.85; transform: translate(-50%, -50%) scale(0.4); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(2.3); }
+    }
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0.4); }
+    }
+    @keyframes cardSlideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .adaptive-card {
+      animation: cardSlideIn 0.24s ease-out;
+    }
+
+    /* TOP HERO: APPLE-WATCH STYLE SVG RING + RACE-TO-138d TRACK */
+    .gp-level-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #312e81 100%);
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22);
+    }
+    .gp-hero-ring-wrap {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      flex-shrink: 0;
+    }
+    .gp-hero-ring-svg {
+      width: 68px;
+      height: 68px;
+      transform: rotate(-90deg);
+    }
+    .gp-ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.14);
+      stroke-width: 6;
+    }
+    .gp-ring-fg {
+      fill: none;
+      stroke: url(#gpGrad);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 163.36;
+      stroke-dashoffset: 163.36;
+      transition: stroke-dashoffset 1s cubic-bezier(0.22, 1, 0.36, 1);
+      filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.55));
+    }
+    .gp-hero-ring-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.05;
+    }
+    .gp-hero-pct {
+      font-size: 15px;
+      font-weight: 800;
+      color: #6ee7b7;
+    }
+    .gp-hero-lvl {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #cbd5e1;
+      letter-spacing: 0.04em;
+    }
+
+    .gp-hero-right {
+      flex: 1;
+      min-width: 0;
+    }
+    .gp-level-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .gp-streak-pill {
+      background: rgba(251, 146, 60, 0.22);
+      border: 1px solid rgba(251, 146, 60, 0.6);
+      color: #fed7aa;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      animation: streakFlicker 2.2s ease-in-out infinite;
+    }
+
+    /* VISUAL RACE-TO-138d TIMELINE */
+    .gp-race-wrap {
+      position: relative;
+      padding-top: 16px;
+      padding-bottom: 4px;
+    }
+    .gp-race-track {
+      position: relative;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+    }
+    .gp-race-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #38bdf8, #34d399);
+      width: 0%;
+      transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .gp-goal-flag {
+      position: absolute;
+      left: 65.7%;
+      top: -15px;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: 800;
+      color: #fde047;
+      white-space: nowrap;
+    }
+    .gp-goal-line {
+      position: absolute;
+      left: 65.7%;
+      top: -3px;
+      bottom: -3px;
+      width: 2px;
+      background: #fde047;
+      box-shadow: 0 0 6px #fde047;
+    }
+    .gp-runner-dot {
+      position: absolute;
+      top: 50%;
+      left: 69%;
+      transform: translate(-50%, -50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fbbf24;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.9);
+      transition: left 0.85s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease, box-shadow 0.3s ease;
+      z-index: 3;
+    }
+    .gp-runner-dot.ahead {
+      background: #10b981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.95);
+    }
+    .gp-gps-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #cbd5e1;
+      margin-top: 7px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .gp-eta-highlight {
+      color: #fde047;
+      font-weight: 800;
+      font-size: 12px;
+      transition: color 0.3s ease;
+    }
+    .gp-eta-highlight.ahead {
+      color: #6ee7b7;
+    }
+
+    /* 3D FLIP COLLECTIBLE SKILL MEDALLION CARDS */
+    .gp-badge-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 11px;
+      margin-bottom: 12px;
+    }
+    .gp-flip-scene {
+      perspective: 900px;
+      height: 168px;
+      cursor: pointer;
+      position: relative;
+    }
+    .gp-flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-style: preserve-3d;
+    }
+    .gp-flip-scene:hover .gp-flip-inner {
+      transform: translateY(-3px);
+    }
+    .gp-flip-scene.is-flipped .gp-flip-inner {
+      transform: rotateY(180deg);
+    }
+    .gp-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 10px;
+      padding: 11px 9px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      text-align: center;
+      overflow: hidden;
+    }
+    .gp-face-front.gold {
+      border: 1px solid #86efac;
+      border-top: 4px solid #10b981;
+      background: linear-gradient(120deg, #f0fdf4 30%, #dcfce7 50%, #f0fdf4 70%);
+      background-size: 200% 100%;
+      animation: foilShimmer 5s linear infinite;
+    }
+    .gp-face-front.silver {
+      border: 1px solid #bfdbfe;
+      border-top: 4px solid #3b82f6;
+      background: #f8fafc;
+      animation: pulseGlow 2.6s infinite;
+    }
+    .gp-face-front.rusty {
+      border: 1px solid #fde68a;
+      border-top: 4px solid #f59e0b;
+      background: #fffbeb;
+      animation: amberPulse 2.2s infinite;
+    }
+    .gp-face-back {
+      transform: rotateY(180deg);
+      background: #f8fafc;
+      border: 1.5px dashed #64748b;
+      justify-content: center;
+      gap: 5px;
+      padding: 10px;
+    }
+    .gp-back-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #1e293b;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid #e2e8f0;
+      width: 100%;
+      padding-bottom: 3px;
+    }
+    .gp-stamp-row {
+      font-size: 10.8px;
+      color: #0f172a;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 2px 6px;
+      width: 100%;
+      text-align: left;
+      font-family: monospace;
+    }
+
+    /* MEDALLION SVG RING AROUND EACH SKILL ICON */
+    .gp-medallion {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gp-medallion svg {
+      position: absolute;
+      inset: 0;
+      width: 52px;
+      height: 52px;
+      transform: rotate(-90deg);
+    }
+    .gp-med-bg {
+      fill: #ffffff;
+      stroke: #e2e8f0;
+      stroke-width: 4.5;
+    }
+    .gp-med-fg {
+      fill: none;
+      stroke-width: 4.5;
+      stroke-linecap: round;
+      stroke-dasharray: 138.2;
+      stroke-dashoffset: 138.2;
+      transition: stroke-dashoffset 0.95s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.3s ease;
+    }
+    .gp-med-emoji {
+      position: relative;
+      z-index: 2;
+      font-size: 20px;
+    }
+
+    /* RUBBER PASSPORT STAMP SEAL + SHOCKWAVE */
+    .gp-stamp-seal {
+      position: absolute;
+      top: 7px;
+      right: 6px;
+      border: 2px solid #059669;
+      color: #059669;
+      background: rgba(236, 253, 245, 0.92);
+      font-size: 9px;
+      font-weight: 900;
+      padding: 1px 5px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      transform: rotate(-10deg);
+      z-index: 5;
+      pointer-events: none;
+    }
+    .gp-stamp-seal.slam {
+      animation: stampSlam 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .gp-shockwave {
+      position: absolute;
+      left: 50%;
+      top: 42%;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 3px solid #10b981;
+      pointer-events: none;
+      z-index: 15;
+      animation: shockwaveRing 0.65s ease-out forwards;
+    }
+
+    .gp-badge-title {
+      font-size: 12.2px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .gp-badge-tier {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.02em;
+    }
+    .tier-gold { background: #d1fae5; color: #065f46; }
+    .tier-silver { background: #dbeafe; color: #1e40af; }
+    .tier-rusty { background: #fef3c7; color: #92400e; }
+
+    .gp-badge-sub {
+      font-size: 10.6px;
+      color: #475569;
+      line-height: 1.25;
+    }
+    .gp-flip-hint {
+      font-size: 9.8px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .confetti-dot {
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 25;
+      animation: confettiFall 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* READINESS IMPACT STRIP (SHOWN ACROSS ALL USE CASES) */
+    .impact-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: linear-gradient(90deg, #eef2ff 0%, #ecfdf5 100%);
+      border: 1px solid #c7d2fe;
+      border-left: 4px solid #4f46e5;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      font-size: 11.8px;
+      color: #1e293b;
+    }
+    .impact-pill {
+      background: #065f46;
+      color: #ecfdf5;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* ANIMATED COHORT DIGITAL-TWIN BARS (FSM ACTION 3) */
+    .cohort-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 11px 13px;
+    }
+    .cb-row {
+      display: grid;
+      grid-template-columns: 145px 1fr 145px;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+    }
+    .cb-name { font-weight: 700; color: #1e293b; }
+    .cb-track {
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cb-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s ease;
+    }
+    .cb-eta {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* ADAPTIVE CARD ACTION BUTTONS */
+    .ac-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .ac-btn {
+      border: 1px solid #8a8886;
+      background: #fff;
+      color: var(--text-main);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .ac-btn.primary {
+      background: var(--teams-purple);
+      border-color: var(--teams-purple);
+      color: #fff;
+    }
+    .ac-btn.primary:hover {
+      background: var(--teams-purple-hover);
+    }
+    .ac-btn:hover:not(.primary) {
+      background: #f3f2f1;
+    }
+
+    /* ACTION RESULT TOAST INSIDE CARD */
+    .ac-result {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      background: var(--green-bg);
+      border: 1px solid #a8dab5;
+      color: #0d652d;
+      font-size: 12.5px;
+      font-weight: 600;
+      display: none;
+    }
+
+    /* NATIVE AI RESULT FEEDBACK BAR (THUMBS UP / THUMBS DOWN) */
+    .ac-feedback-bar {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px dashed #e1dfdd;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+    .fb-buttons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .fb-btn {
+      border: 1px solid #d2d0ce;
+      background: #fafafa;
+      color: #484644;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .fb-btn:hover {
+      background: #f0f2f9;
+      border-color: var(--teams-purple);
+      color: var(--teams-purple);
+    }
+    .fb-btn.active-up {
+      background: var(--green-bg);
+      border-color: var(--green);
+      color: var(--green);
+    }
+    .fb-btn.active-down {
+      background: var(--amber-bg);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+    .fb-drawer {
+      margin-top: 8px;
+      padding: 9px 12px;
+      background: #fff9f5;
+      border: 1px solid #f5c2a3;
+      border-radius: 6px;
+      display: none;
+      font-size: 12px;
+    }
+    .fb-drawer-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .fb-drawer-row input {
+      flex: 1;
+      padding: 5px 9px;
+      border: 1px solid #c8c6c4;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .fb-toast {
+      margin-top: 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--teams-purple);
+      display: none;
+    }
+
+    /* BOTTOM TEAMS COMPOSE BOX WITH 1-CLICK QUESTION CHIPS */
+    .compose-bar {
+      background: #fff;
+      border-top: 1px solid var(--border);
+      padding: 10px 24px 14px;
+      flex-shrink: 0;
+    }
+    .prompt-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .chip-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .prompt-chip {
+      background: #f0f2f9;
+      border: 1px solid #c5cbf5;
+      color: var(--teams-purple);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .prompt-chip:hover {
+      background: var(--teams-purple);
+      color: #fff;
+    }
+    .compose-input {
+      display: flex;
+      gap: 8px;
+    }
+    .compose-input input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #c8c6c4;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    /* NATIVE TEAMS APP TABS (CHAT | READINESS JOURNEY - DFS TRACKER) */
+    .teams-app-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 16px;
+      padding-left: 16px;
+      border-left: 1px solid var(--border);
+      height: 56px;
+    }
+    .teams-tab-btn {
+      background: transparent;
+      border: none;
+      height: 100%;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      transition: color 0.15s;
+    }
+    .teams-tab-btn:hover {
+      color: var(--text-main);
+    }
+    .teams-tab-btn.active {
+      color: var(--teams-purple);
+      font-weight: 700;
+    }
+    .teams-tab-btn.active::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 0;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--teams-purple);
+    }
+    .dfs-tab-pill {
+      background: #dff0e6;
+      color: #165b38;
+      border: 1px solid #b7dfc7;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 1px 7px;
+      border-radius: 999px;
+      transition: transform 0.25s ease, background 0.25s ease;
+    }
+    .dfs-tab-pill.synced-pulse {
+      background: #10b981;
+      color: #ffffff;
+      transform: scale(1.12);
+    }
+
+    /* EMBEDDED DFS TRACKER PANE (INSPIRED BY BUSINESS TEAM PROTOTYPE) */
+    .dfs-tracker-pane {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      background: #f2f3ee;
+      padding: 18px 22px 28px;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .dfs-card {
+      background: #fafaf7;
+      border: 1px solid #dfe2d8;
+      border-radius: 14px;
+      padding: 18px 22px;
+      max-width: 920px;
+      width: 100%;
+      box-shadow: 0 2px 8px rgba(20, 40, 28, 0.04);
+    }
+    .dfs-eyebrow {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1e754c;
+      margin-bottom: 6px;
+    }
+    .dfs-profile-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .dfs-profile-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      flex: 1;
+      min-width: 280px;
+    }
+    .dfs-monogram {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #2d8a5b, #1b6b43);
+      color: #ffffff;
+      font-size: 19px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 3px 8px rgba(27, 107, 67, 0.22);
+      margin-top: 4px;
+    }
+    .dfs-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: #18221d;
+      line-height: 1.15;
+    }
+    .dfs-role-sub {
+      font-size: 12.5px;
+      color: #5b665f;
+      margin-top: 2px;
+      margin-bottom: 10px;
+    }
+    .dfs-meta-grid {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .dfs-meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .dfs-meta-k {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #7c867f;
+    }
+    .dfs-meta-v {
+      font-size: 12px;
+      font-weight: 600;
+      color: #233029;
+      margin-top: 1px;
+    }
+    .dfs-curriculum-line {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #1c2822;
+    }
+    .dfs-profile-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .dfs-donut-wrap {
+      position: relative;
+      width: 86px;
+      height: 86px;
+      flex-shrink: 0;
+    }
+    .dfs-donut-wrap svg {
+      width: 86px;
+      height: 86px;
+      transform: rotate(-90deg);
+    }
+    .dfs-donut-bg {
+      fill: none;
+      stroke: #e4e5dd;
+      stroke-width: 8;
+    }
+    .dfs-donut-fg {
+      fill: none;
+      stroke: #1e754c;
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 226.2;
+      stroke-dashoffset: 226.2;
+      transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .dfs-donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .dfs-donut-pct {
+      font-size: 18px;
+      font-weight: 800;
+      color: #18221d;
+      line-height: 1.05;
+    }
+    .dfs-donut-lbl {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #6c7770;
+      margin-top: 2px;
+    }
+    .dfs-objective-box {
+      border: 1px solid #d8ddd4;
+      background: #f4f6f1;
+      border-radius: 10px;
+      padding: 11px 15px;
+      min-width: 215px;
+    }
+    .dfs-obj-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #1b6b43;
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+    .dfs-obj-ascent {
+      font-size: 11px;
+      font-weight: 700;
+      color: #3f469c;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* 4-STAGE CAREER ROADMAP (INSPIRATION FROM BUSINESS TEAM SCREENSHOT 2) */
+    .dfs-roadmap-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .dfs-legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: #4b554e;
+    }
+    .dfs-leg-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .dfs-nodes-row {
+      display: grid;
+      grid-template-columns: 1fr 54px 1fr 54px 1fr 54px 1fr;
+      align-items: center;
+      justify-items: center;
+      padding: 6px 8px 0;
+    }
+    .dfs-stage-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1.5px solid transparent;
+      transition: all 0.18s ease;
+      width: 100%;
+    }
+    .dfs-stage-node:hover {
+      background: #f1f4ee;
+      border-color: #c5d6cb;
+    }
+    .dfs-stage-node.selected {
+      background: #eef5f0;
+      border-color: #1e754c;
+      box-shadow: 0 3px 10px rgba(30, 117, 76, 0.1);
+    }
+    .dfs-circle {
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 9px;
+    }
+    .dfs-circle.complete {
+      background: #1b6b43;
+      color: #ffffff;
+      font-size: 30px;
+      font-weight: 800;
+      box-shadow: 0 4px 10px rgba(27, 107, 67, 0.22);
+    }
+    .dfs-circle.in-progress {
+      background: #fafaf7;
+    }
+    .dfs-circle.locked {
+      background: #e6e5dc;
+      border: 1.5px solid #c8c7be;
+      font-size: 24px;
+    }
+    .dfs-finish-flag {
+      position: absolute;
+      top: -4px;
+      right: -6px;
+      font-size: 16px;
+    }
+    .dfs-stage-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e2822;
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    .dfs-stage-node.locked-txt .dfs-stage-name {
+      color: #6d756f;
+    }
+    .dfs-track-pill {
+      background: #dff0e6;
+      color: #165b38;
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .dfs-track-pill.risk {
+      background: #fde7e9;
+      color: #b91c1c;
+    }
+    .dfs-stage-eta {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #4b5563;
+      margin-top: 4px;
+    }
+    .dfs-arrow-solid {
+      width: 100%;
+      height: 2px;
+      background: #1b6b43;
+      position: relative;
+      margin-bottom: 36px;
+    }
+    .dfs-arrow-solid::after {
+      content: "";
+      position: absolute;
+      right: -2px;
+      top: -4px;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 9px solid #1b6b43;
+    }
+    .dfs-arrow-dashed {
+      width: 100%;
+      border-top: 2px dashed #b9bcb2;
+      position: relative;
+      margin-bottom: 36px;
+    }
+    .dfs-arrow-dashed::after {
+      content: "";
+      position: absolute;
+      right: -2px;
+      top: -5px;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 9px solid #b9bcb2;
+    }
+    .dfs-bypass-svg {
+      width: 100%;
+      height: 36px;
+      display: block;
+      margin-top: 2px;
+    }
+    .dfs-inspector {
+      margin-top: 12px;
+      background: #eef1fb;
+      border: 1px solid #c5cbf5;
+      border-left: 4px solid var(--teams-purple);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .dfs-insp-text {
+      font-size: 12.5px;
+      color: #1e293b;
+      flex: 1;
+      min-width: 240px;
+      line-height: 1.4;
+    }
+    .dfs-mini-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      background: #f5f7f3;
+      border: 1px solid #d6dfd8;
+      border-radius: 8px;
+      padding: 7px 11px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #24332b;
+      flex-wrap: wrap;
+    }
+    .dfs-mini-link {
+      color: #1b6b43;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .dfs-roster-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 1px solid #e2e5dc;
+      border-radius: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* INLINE DFS TRACKER GRAPHICAL WIDGETS INSIDE TEAMS ADAPTIVE CARDS */
+    .ac-dfs-box {
+      background: #fafaf7;
+      border: 1px solid #d8ddd3;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      box-shadow: inset 0 1px 0 #ffffff;
+    }
+    .ac-dfs-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .ac-dfs-id-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ac-dfs-mono {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      background: linear-gradient(145deg, #2d8a5b, #1b6b43);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ac-dfs-ring-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ac-dfs-ring {
+      position: relative;
+      width: 62px;
+      height: 62px;
+      flex-shrink: 0;
+    }
+    .ac-dfs-ring svg {
+      width: 62px;
+      height: 62px;
+      transform: rotate(-90deg);
+    }
+    .ac-dfs-ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.05;
+    }
+    .ac-dfs-nodes {
+      display: grid;
+      grid-template-columns: 1fr 34px 1fr 34px 1fr 34px 1fr;
+      align-items: center;
+      justify-items: center;
+    }
+    .ac-node-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .ac-node-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 5px;
+      font-weight: 800;
+    }
+    .ac-node-circle.done {
+      background: #1b6b43;
+      color: #ffffff;
+      font-size: 18px;
+    }
+    .ac-node-circle.prog {
+      background: #ffffff;
+    }
+    .ac-node-circle.lock {
+      background: #e6e5dc;
+      border: 1px solid #c8c7be;
+      font-size: 15px;
+    }
+    .ac-node-lbl {
+      font-size: 11px;
+      font-weight: 800;
+      color: #1f2923;
+      margin-bottom: 3px;
+    }
+    .ac-dfs-cohort-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .ac-cohort-tile {
+      background: #fafaf7;
+      border: 1px solid #d8ddd3;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: all 0.35s ease;
+    }
+    .ac-cohort-tile.at-risk {
+      background: #fff8f8;
+      border-color: #f5b5b5;
+    }
+  </style>
+</head>
+<body>
+  <!-- REUSABLE EVEREST SUMMIT EMBLEM SPRITE -->
+  <svg width="0" height="0" style="position:absolute; visibility:hidden;" aria-hidden="true">
+    <symbol id="everest-peak" viewBox="0 0 36 36">
+      <!-- Subtle summit alpenglow -->
+      <circle cx="22.2" cy="9.5" r="7.5" fill="#38bdf8" opacity="0.22"></circle>
+      <!-- Signature Everest jet-stream snow plume -->
+      <path d="M22.2 6.7 Q27.6 5.9 31.2 8.2 Q27.0 8.5 22.8 8.0 Z" fill="#ffffff" opacity="0.78"></path>
+      <!-- Deep Himalayan massif base -->
+      <path d="M2.2 33 L11.2 16.0 L15.0 20.2 L22.2 6.4 L34.0 33 Z" fill="#0f172a"></path>
+      <!-- Secondary West/Lhotse peak snow & shadow -->
+      <path d="M11.2 16.0 L6.8 24.2 L9.8 22.8 L11.6 24.6 L14.3 19.8 Z" fill="#dbeafe"></path>
+      <path d="M11.2 16.0 L14.3 19.8 L15.8 23.6 L12.4 23.0 Z" fill="#38bdf8"></path>
+      <!-- Main Everest sunlit snow face -->
+      <path d="M22.2 6.4 L14.8 20.6 L18.0 19.0 L20.2 22.0 L22.2 16.2 Z" fill="#ffffff"></path>
+      <!-- Main Everest glacial shadow facet -->
+      <path d="M22.2 6.4 L22.2 16.2 L25.0 20.8 L27.0 18.8 L29.8 22.4 Z" fill="#60a5fa"></path>
+      <!-- Subtle lower arête ridge -->
+      <path d="M22.2 16.2 L19.2 33 L24.6 33 Z" fill="#1e3a8a" opacity="0.65"></path>
+      <!-- Golden South-Col Ascent Route -->
+      <path d="M12.2 30.2 Q17.2 24.5 19.0 19.4 T22.2 6.8" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="2.1 1.8" stroke-linecap="round"></path>
+      <!-- Summit Flag -->
+      <path d="M22.2 6.6 L22.2 2.8" stroke="#fde047" stroke-width="1.3" stroke-linecap="round"></path>
+      <path d="M22.2 2.9 L26.0 4.1 L22.2 5.3 Z" fill="#fde047"></path>
+    </symbol>
+  </svg>
+
+  <!-- TOP TEAMS BAR + ROLE PLAY SWITCHER -->
+  <header class="teams-topbar">
+    <div class="teams-brand">
+      <div class="teams-logo" title="ASCENT — Everest Summit Emblem">
+        <svg class="everest-svg"><use href="#everest-peak"></use></svg>
+      </div>
+      <span>Microsoft Teams — <strong>ASCENT</strong></span>
+      <span class="northstar-pill">🧭 DFS Onboarding &amp; Field Readiness Agent</span>
+    </div>
+
+    <div class="persona-switcher">
+      <span class="persona-label">View as:</span>
+      <button id="btn-fse" class="persona-btn active" onclick="switchPersona('fse')">
+        👤 Adam Jones (FSE)
+      </button>
+      <button id="btn-fsm" class="persona-btn" onclick="switchPersona('fsm')">
+        👔 John Smith (Manager)
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN TEAMS SHELL -->
+  <div class="teams-shell">
+    <!-- LEFT ICON RAIL -->
+    <nav class="teams-rail">
+      <div class="rail-item"><span class="rail-icon">🔔</span><span>Activity</span></div>
+      <div class="rail-item"><span class="rail-icon">💬</span><span>Chat</span></div>
+      <div class="rail-item"><span class="rail-icon">👥</span><span>Teams</span></div>
+      <div class="rail-item"><span class="rail-icon">📅</span><span>Calendar</span></div>
+      <div class="rail-ascent-divider"></div>
+      <div class="rail-item active" title="Pinned Teams App: ASCENT">
+        <div class="rail-ascent-badge">
+          <svg class="everest-svg"><use href="#everest-peak"></use></svg>
+        </div>
+        <span style="font-weight:700; color:#bae6fd;">ASCENT</span>
+      </div>
+    </nav>
+
+    <!-- SCENARIO LIST SIDEBAR -->
+    <aside class="scenario-sidebar">
+      <div class="sidebar-header">
+        <h2 id="sidebar-title">Adam Jones (FSE)</h2>
+        <p id="sidebar-sub">EMP ID 158412 • US-Austin-01 • NovaDep Oxide CVD</p>
+      </div>
+      <div id="scenario-list" class="scenario-list"></div>
+    </aside>
+
+    <!-- TEAMS CHAT STREAM + EMBEDDED DFS TRACKER TAB -->
+    <main class="chat-pane">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <div class="bot-avatar" title="ASCENT Onboarding Assistant">
+            <svg class="everest-svg"><use href="#everest-peak"></use></svg>
+          </div>
+          <div>
+            <div class="chat-title">ASCENT Onboarding Assistant</div>
+            <div class="chat-subtitle">Connected to JourneyHub • WAFER • BKM Knowledge Base</div>
+          </div>
+          <div class="teams-app-tabs">
+            <button id="tab-chat" class="teams-tab-btn active" onclick="switchTeamsTab('chat')">
+              💬 Chat
+            </button>
+            <button id="tab-dfs" class="teams-tab-btn" onclick="switchTeamsTab('dfs')">
+              🧭 Readiness Journey (DFS Tracker)
+              <span id="dfs-tab-pill" class="dfs-tab-pill">74%</span>
+            </button>
+          </div>
+        </div>
+        <span id="active-user-pill" class="active-user-pill">Viewing as: 👤 Adam Jones (FSE)</span>
+      </div>
+
+      <div id="chat-stream" class="chat-stream"></div>
+
+      <!-- EMBEDDED DFS TRACKER VIEW (INSPIRED BY BUSINESS TEAM PROTOTYPE) -->
+      <div id="dfs-tracker-pane" class="dfs-tracker-pane"></div>
+
+      <!-- COMPOSE BAR WITH QUICK QUESTION CHIPS -->
+      <div id="compose-bar" class="compose-bar">
+        <div class="prompt-chips" id="prompt-chips"></div>
+        <div class="compose-input">
+          <input id="chat-input" type="text" placeholder="Ask ASCENT a question..." onkeydown="if(event.key==='Enter') sendCustomQuestion()" />
+          <button class="ac-btn primary" onclick="sendCustomQuestion()">Send</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const DATA = {
+      fse: {
+        headerTitle: "Adam Jones (FSE)",
+        headerSub: "EMP ID 158412 • US-Austin-01 • NovaDep Oxide CVD",
+        pill: "Viewing as: 👤 Adam Jones (FSE)",
+        scenarios: [
+          {
+            id: "fse_precheck",
+            mode: "push",
+            step: "Use Case 1 • WBT ➔ ILT Handoff",
+            title: "WBTs Complete: ILT Lab Ready",
+            desc: "Spots 100% WBT completion & routes open ILT seat to your manager.",
+            triggerType: "⚡ Proactive Push • Prerequisite WBTs Completed",
+            triggerText: "Adam finished his final prerequisite module ('WBT-105: CVD Fundamentals') → ASCENT checked his shift schedule + open ILT seats and routed a 1-click lab enrollment to Manager John Smith.",
+            userPrompt: null,
+            followUps: [
+              ["Does Nov 4 Austin lab fit my shift?", "✅ <strong>Shift Checked:</strong> Austin ILT-204 runs Nov 4–7 on Day Shift, matching your Fab 4 rotation with zero night-shift flip."],
+              ["Why can't I enroll myself in ILT-204?", "🔒 <strong>DFS Enrollment Policy:</strong> Hands-on ILT lab seats are manager-enrolled in JourneyHub. ASCENT already sent John Smith a 1-click approval card while 2 seats are still open."]
+            ],
+            card: {
+              source: "JourneyHub + Shift Schedule",
+              badge: "100% WBTs Complete ✅",
+              badgeClass: "badge-blue",
+              impactStrip: ["<strong>Without ASCENT:</strong> FSEs finish prerequisite WBTs & sit idle until a manager checks JourneyHub — often missing open lab seats.", "⚡ Zero Handoff Lag"],
+              title: "Prerequisite WBTs Complete — Sent to Manager for ILT Lab",
+              sub: "Active Curriculum: NovaDep Oxide CVD Secondary Installer Program. All required WBTs are complete — ASCENT notified John Smith to enroll you in the Nov 4 Austin hands-on lab before the last 2 seats fill:",
+              facts: [
+                ["Completed WBT Gate", "LOTO & High-Voltage Safety (WBT-101) + CVD Fundamentals (WBT-105) ✅"],
+                ["Unlocked Next Step", "NovaDep Oxide CVD Hands-On Lab (Austin ILT-204 • Nov 4–7 • 2 seats left)"],
+                ["Shift Alignment", "Matches your Fab 4 Day Shift rotation ✅ (Pending FSM enrollment)"]
+              ],
+              actions: [
+                { label: "Nudge Manager", primary: true, reply: "📨 Sent a quick reminder to John Smith (Manager) in Teams — switch to 'John Smith (Manager)' at top right to enroll Adam in 1 click!" },
+                { label: "View Lab Prep Guide", primary: false, reply: "📘 Austin ILT-204 Prep: Bring cleanroom safety shoes & review NovaDep Chamber B gas panel schematic before Day 1." }
+              ]
+            }
+          },
+          {
+            id: "fse_checklist",
+            mode: "push",
+            step: "Use Case 2 • First-Time Sign-Off",
+            title: "Pre-Job OJT Briefing",
+            desc: "Pushes a quick readiness check & BKM steps when OJT is assigned.",
+            triggerType: "⚡ Proactive Push • OJT Shadow Assigned",
+            triggerText: "Manager John Smith assigned Adam to shadow WO #88412 (Fab 4, Bay 4 with M. Chen) → ASCENT proactively pushed his pre-job safety check & BKM steps ahead of the shift.",
+            userPrompt: null,
+            followUps: [
+              ["What tools do I bring to Bay 4?", "🧰 <strong>Bay 4 Tool Prep:</strong> Bring your calibrated 18 in-lbs torque wrench, Class-100 cleanroom gloves, and confirm Helium detector cart #3 is staged at Bay 4."],
+              ["What unlocks after Task #2?", "🔓 <strong>Next Unlock:</strong> Once John Smith signs off Task #2 (Vacuum Foreline Leak Check), Task #4 (Cryo Pump Regeneration) unlocks automatically in JourneyHub."]
+            ],
+            card: {
+              source: "WAFER Assignment + BKM-4.2",
+              badge: "Assigned: Bay 4 (WO #88412)",
+              badgeClass: "badge-amber",
+              impactStrip: ["<strong>Without ASCENT:</strong> New hires walk into assigned OJT cold & just watch instead of getting signed off.", "⚡ 1st-Try Sign-Off"],
+              title: "Pre-Job Briefing: Bay 4 Shadow Assignment (WO #88412)",
+              sub: "NovaDep Oxide CVD Program — Assigned with Mentor M. Chen on Fab 4 Day Shift. Complete your quick readiness check before heading into the bay:",
+              table: {
+                headers: ["Required Task", "Status", "Assignment & Prep"],
+                rows: [
+                  ["1. LOTO & High-Voltage Safety", "✅ Done", "Completed Oct 12"],
+                  ["2. Vacuum Foreline Leak Check", "📋 Assigned", "Shadow M. Chen in Bay 4 (WO #88412 — assigned by FSM)"],
+                  ["3. CVD RF Match Box Swap", "🟡 Prep Quiz", "Pass pre-job check so FSM can pair you on next PM"],
+                  ["4. Cryo Pump Regeneration", "🔒 Locked", "Unlocks after Task #2 is signed off"]
+                ]
+              },
+              actions: [
+                { label: "Take Pre-Job Check", primary: true, reply: "🎙️ Pre-Job Check Opened Below" },
+                { label: "Review BKM-4.2 Steps", primary: false, reply: "📖 BKM-4.2 Summary: Bring calibrated torque wrench (18 in-lbs), verify N2 purge interlock, and log post-PM He leak < 1.0E-9 cc/s." }
+              ]
+            }
+          },
+          {
+            id: "fse_passport",
+            mode: "push",
+            step: "Use Case 3 • Avoid Retakes",
+            title: "90-Day Skill Renewal",
+            desc: "Catches expiring stamps early & pushes a quick refresher.",
+            triggerType: "⚡ Proactive Push • 90-Day Expiry Alert (5d Left)",
+            triggerText: "Daily WAFER scan spotted Adam's Cryo Pump qualification approaching its 90-day limit → ASCENT pushed a quick refresher so he doesn't lose credit.",
+            userPrompt: null,
+            followUps: [
+              ["When does CVD Gas Box PM expire?", "📅 <strong>Stamp Validity:</strong> Your 2 completed CVD Gas Box PM stamps stay active through Jan 14. Your 3rd shadow job is scheduled with the Fab 4 PM crew next week."],
+              ["How did my Etch skills carry over?", "🔄 <strong>Cross-Tool Credit:</strong> ASCENT mapped 3 prior Etch WAFER logs (#88104, #88219, #88412) to NovaDep Vacuum Systems so you don't repeat basic vacuum OJT."]
+            ],
+            card: {
+              source: "JourneyHub + WAFER Repair Logs",
+              badge: "1 Skill Expiring: Cryo Pump",
+              badgeClass: "badge-amber",
+              impactStrip: ["<strong>Without ASCENT:</strong> Qualifications lapse quietly at 90 days — forcing a 6-day class retake.", "⚡ Avoids 6d Retake"],
+              title: "Keep Cryo Pump Qualification Active — 5 Days Until Expiry",
+              sub: "Your Cryo Pump stamp reaches its 90-day limit this week. Complete the quick refresher below to keep your credit active and avoid retaking the 6-day lab:",
+              gamifiedPassport: true,
+              actions: [
+                { label: "Start Quick Refresh", primary: true, reply: "🎉 Cryo Pump refresher passed! Qualification stays active for another 90 days — no 6-day lab retake needed." },
+                { label: "View Carried-Over Skills", primary: false, reply: "✅ Auto-credited from prior Etch qualification: Vacuum Systems (3/3 jobs), LOTO Safety, and Helium Leak Testing." }
+              ]
+            }
+          },
+          {
+            id: "fse_sustainer_sim",
+            mode: "pull",
+            step: "Use Case 4 • Sustainer Prep",
+            title: "Fault Practice & Repair Q&A",
+            desc: "Pull real past WAFER fault sims & BKM torque specs anytime.",
+            triggerType: "💬 On-Demand Pull • FSE Self-Service Practice",
+            triggerText: "Between scheduled PMs, Adam pulls a real past Chamber B fault simulation from WAFER instead of waiting months to witness rare live tool alarms.",
+            userPrompt: "Give me a real NovaDep Chamber B reflected RF fault case from WAFER to practice for Sustainer.",
+            followUps: [
+              ["What is the BKM-4.2 RF cable torque spec?", "🔧 <strong>BKM-4.2 Spec:</strong> Torque the N-type RF match coax connector to <strong>18 in-lbs</strong>, verify N2 purge interlock LED is solid green, then run Auto-Tune."],
+              ["How many fault sims left for Sustainer?", "🎯 <strong>Sustainer Progress:</strong> 3 of 10 fault simulations complete. Finishing the remaining 7 completes your diagnostic troubleshooting requirement for Sustainer."]
+            ],
+            card: {
+              source: "Past WAFER Logs + Mobile Repair Guide",
+              badge: "Practice Case 4 of 10",
+              badgeClass: "badge-blue",
+              impactStrip: ["<strong>Without ASCENT:</strong> Wait 6+ months hoping to witness rare unscripted tool alarms on shift.", "⚡ Anytime Practice"],
+              title: "🕹️ Practice Case: NovaDep Chamber B Reflected RF",
+              sub: "Based on real WAFER Case #77109. Find the root cause without venting the chamber (avoids 4.5 hours of tool downtime):",
+              facts: [
+                ["Tool Symptoms", "Chamber pressure swinging 18–42 mTorr • Reflected RF power spiking to 58W"],
+                ["On-Shift Support", "When on tool, pull Mobile Guide for torque specs (BKM-4.2) & mentor walkthrough clip"],
+                ["Curriculum Credit", "Counts toward Sustainer diagnostic troubleshooting track"]
+              ],
+              actions: [
+                { label: "Start Fault Practice", primary: true, reply: "🕹️ Fault Practice Opened Below" },
+                { label: "Open Repair Guide", primary: false, reply: "📱 Opened BKM-4.2 Repair Guide: RF Match capacitor tune steps + auto-filled WAFER passdown notes." }
+              ]
+            }
+          }
+        ]
+      },
+      fsm: {
+        headerTitle: "John Smith (Manager)",
+        headerSub: "US-Austin-01 • Customer Support Team • 14 FSEs (9 in Training)",
+        pill: "Viewing as: 👔 John Smith (Manager)",
+        scenarios: [
+          {
+            id: "fsm_enroll",
+            mode: "push",
+            step: "Use Case 1 • Fast ILT Enrollment",
+            title: "One-Click ILT Lab Enrollment",
+            desc: "Pushes instant ILT seat match the moment a trainee finishes WBTs.",
+            triggerType: "⚡ Proactive Push • Trainee Unlocked for ILT",
+            triggerText: "Adam Jones (EMP ID 158412) completed 100% of prerequisite WBTs → ASCENT checked Fab 4 Day Shift coverage + open seats and pushed a 1-click Austin ILT enrollment to John Smith.",
+            userPrompt: null,
+            followUps: [
+              ["Does Nov 4 hurt Fab 4 PM coverage?", "✅ <strong>Shift Coverage Safe:</strong> Primary FSEs M. Chen & R. Diaz are both on Fab 4 Day Shift Nov 4–7; zero customer installs or major PMs are impacted."],
+              ["Who else is ready for Austin ILT-204?", "📋 <strong>Cohort Check:</strong> Daniel Chen has 1 prerequisite WBT remaining (on pace for Nov 18 class). Adam Jones is ready now while 2 seats remain on Nov 4."]
+            ],
+            card: {
+              source: "JourneyHub + Shift Schedule",
+              badge: "2 Seats Left • Shift Checked",
+              badgeClass: "badge-blue",
+              impactStrip: ["<strong>Without ASCENT:</strong> FSMs notice completed WBTs 1–2 weeks late — after local ILT lab seats are already gone.", "⚡ Zero Admin Lag"],
+              title: "Enroll Adam Jones: NovaDep Oxide CVD Lab (Austin ILT-204)",
+              sub: "Adam completed 100% of required prerequisite WBTs today. Only 2 seats remain in the Nov 4 Austin hands-on lab — enroll him now before it fills?",
+              facts: [
+                ["Prerequisites & Safety", "100% WBT Gate Passed (LOTO & High-Voltage Safety verified ✅)"],
+                ["Recommended Lab Seat", "Hold Seat #3 in Austin ILT-204 (Nov 4–7 • Local lab, $0 travel)"],
+                ["Fab Shift Coverage", "Fab 4 Day Shift covered by M. Chen & R. Diaz ✅"]
+              ],
+              actions: [
+                { label: "Enroll in Austin Lab", primary: true, reply: "✅ Done! Enrolled Adam Jones in Austin ILT-204 (Nov 4–7, Seat #3) in JourneyHub and notified Adam in Teams." },
+                { label: "Check Later Dates", primary: false, reply: "📅 Next local Austin ILT-204 after Nov 4 starts Dec 9 (5-week wait before Q4 installs) — Nov 4 recommended." }
+              ]
+            }
+          },
+          {
+            id: "fsm_waitlist_approval",
+            mode: "push",
+            step: "Use Case 2 • Avoid Waitlists",
+            title: "Full Class: Re-Enroll Alert",
+            desc: "Flags 0-seat labs 3 weeks early with 3 pre-costed recovery options.",
+            triggerType: "⚡ Proactive Push • Early 0-Seat Bottleneck (3 Wks Out)",
+            triggerText: "JourneyHub seat monitor detected Austin 'RF Troubleshooting (ILT-305)' hitting 0 seats 3 weeks ahead → ASCENT pushed 3 recovery options before Adam ever got stalled.",
+            userPrompt: null,
+            followUps: [
+              ["Compare $640 Phoenix travel vs Q4 delay", "💰 <strong>ROI Breakdown:</strong> Waiting 5 weeks for the next Austin lab stalls Adam right before Q4 Fab 4 ramp (~$8,400 contractor backfill vs. $640 Phoenix travel)."],
+              ["What differs in Local Alternate ILT-305B?", "📘 <strong>Curriculum Match:</strong> Austin ILT-305B runs identical RF bench labs; ASCENT pairs it with an online Chamber B supplement so $0 travel is required."]
+            ],
+            card: {
+              source: "JourneyHub Enrollment + Regional Budget",
+              badge: "Caught 3 Weeks Early",
+              badgeClass: "badge-amber",
+              impactStrip: ["<strong>Without ASCENT:</strong> FSM discovers full class late; FSE sits idle & misses Q4 installs.", "⚡ Avoids 5-Wk Wait"],
+              title: "Bottleneck Caught Early: Austin ILT-305 Hit 0 Seats",
+              sub: "Waiting 5 weeks for the next open Austin seat stalls Adam right before the Q4 Fab 4 install ramp. Pick a recovery option below to keep him moving:",
+              table: {
+                headers: ["Manager Action", "Enrollment & Cost Details", "Schedule Impact"],
+                rows: [
+                  ["1. Local Alternate", "Enroll in Austin ILT-305B (2 seats) + online Chamber B module", "No delay • $0 travel"],
+                  ["2. Phoenix Lab", "Enroll in Phoenix Nov 6 open seat ($640 travel vs. $8.4k Q4 delay)", "No delay • $640 travel"],
+                  ["3. Swap to Fab OJT", "Assign 2 Fab 4 shadow jobs this week while watching Austin waitlist", "0 idle days"]
+                ]
+              },
+              actions: [
+                { label: "Enroll Local Alternate ($0)", primary: true, reply: "✅ Enrolled Adam in Austin ILT-305B + assigned the online RF supplement ($0 travel, zero delay)!" },
+                { label: "Enroll Phoenix ($640)", primary: false, reply: "✅ Enrolled Adam in Phoenix ILT-305 (Nov 6) and issued travel approval ($640)." },
+                { label: "Assign OJT First", primary: false, reply: "🔄 Assigned 2 Fab 4 shadow jobs this week and placed Adam #1 on Austin auto-enroll waitlist." }
+              ]
+            }
+          },
+          {
+            id: "fsm_ojt_dispatch",
+            mode: "push",
+            step: "Use Case 3 • Live OJT Match",
+            title: "Match & Assign Fab OJT",
+            desc: "Auto-matches live WAFER PMs to trainees who need that exact task.",
+            triggerType: "⚡ Proactive Push • Live WAFER Work Order Match",
+            triggerText: "Bay 4 opened PM WO #88412 (Vacuum Foreline Leak Check) → ASCENT cross-checked all 9 trainees' open checklists & shifts and pushed Adam Jones as the #1 match.",
+            userPrompt: null,
+            followUps: [
+              ["Why wasn't Sara Lin matched to WO #88412?", "✅ <strong>Checklist Checked:</strong> Sara Lin already completed Task #2 (Vacuum Foreline Leak Check) on Oct 9. Her next open task is CVD Gas Box PM."],
+              ["What is M. Chen's mentor load this week?", "👤 <strong>Mentor Load:</strong> M. Chen has mentored 1 shadow job this week (team cap is 3/week) and holds a 98% first-time trainee sign-off rate."]
+            ],
+            card: {
+              source: "WAFER Work Orders + JourneyHub",
+              badge: "Matched on Fab 4 Day Shift",
+              badgeClass: "badge-amber",
+              impactStrip: ["<strong>Without ASCENT:</strong> FSMs don't have time to cross-check daily PMs against 9 trainees' open checklists.", "⚡ Zero OJT Idle Wait"],
+              title: "Assign OJT Shadow: Bay 4 Vacuum Leak Check (WO #88412)",
+              sub: "Scheduled on Fab 4 Day Shift with Primary FSE M. Chen. Best trainee match on shift:",
+              facts: [
+                ["Best FSE Match", "Adam Jones (EMP ID 158412) • Needs Task #2 (Vacuum Foreline Leak Check)"],
+                ["Shift & Safety", "Assigned to Fab 4 Day Shift • Available • LOTO verified ✅"],
+                ["Mentor Capacity", "M. Chen (Primary FSE) • 0 other shadows assigned on shift"]
+              ],
+              actions: [
+                { label: "Assign Adam to Shadow", primary: true, reply: "✅ Assigned Adam Jones to shadow M. Chen on WO #88412 (Bay 4) and pushed Adam's pre-job briefing!" },
+                { label: "See Other New Hires", primary: false, reply: "📋 Other Day-Shift Hires: Sara Lin (Already signed off on Task #2 ✅) • Kevin Patel (In Austin Lab this week)." }
+              ]
+            }
+          },
+          {
+            id: "fsm_ojt_signoff",
+            mode: "push",
+            step: "Use Case 4 • Zero Chasing",
+            title: "One-Click OJT Sign-Off",
+            desc: "Pushes bundled leak-test data & mentor note the moment WO closes.",
+            triggerType: "⚡ Proactive Push • WAFER Work Order Closed",
+            triggerText: "WO #88412 closed in Bay 4 with Helium leak pass → ASCENT automatically bundled LOTO, quiz score, tool telemetry & mentor note for 1-click sign-off.",
+            userPrompt: null,
+            followUps: [
+              ["Show raw Helium leak trace for WO #88412", "📈 <strong>WAFER Telemetry:</strong> Baseline 6.1E-10 cc/s ➔ Post-PM foreline check <strong>4.2E-10 cc/s</strong> (Spec &lt; 1.0E-9 cc/s). Stable across full chamber hold."],
+              ["What unlocks next for Adam?", "🔓 <strong>Curriculum Unlock:</strong> Approving bumps Adam's Secondary Installer ring to 84% and unlocks Cryo Pump Regeneration + CVD RF Match Swap."]
+            ],
+            card: {
+              source: "WAFER Telemetry + JourneyHub",
+              badge: "Ready for Sign-Off",
+              badgeClass: "badge-green",
+              impactStrip: ["<strong>Without ASCENT:</strong> Spend hours chasing mentors over email to sign paper checklists.", "⚡ Saves ~4 Hrs/Wk"],
+              title: "OJT Sign-Off: Adam Jones — Vacuum Foreline Leak Check",
+              sub: "Approving records OJT task completion in JourneyHub (advancing Adam's Secondary Installer curriculum to 84%):",
+              dfsSignoffPreview: true,
+              facts: [
+                ["Safety & Quiz", "LOTO verified ✅ • Pre-job check: 95% ✅"],
+                ["Tool Leak Test", "WAFER WO #88412 Helium leak rate: 4.2E-10 cc/s (Pass < 1.0E-9) ✅"],
+                ["Mentor Note", "M. Chen (Primary FSE): 'Followed BKM-4.2 cleanly without help.' ✅"]
+              ],
+              actions: [
+                { label: "Approve & Sign Off", primary: true, reply: "✅ Signed off! Recorded OJT completion in JourneyHub from WAFER WO #88412 (Secondary Installer curriculum now at 84%)." }
+              ]
+            }
+          },
+          {
+            id: "fsm_pace_recovery",
+            mode: "push",
+            step: "Use Case 5 • Early Warning",
+            title: "Early Pace Drift Alert",
+            desc: "Proactively flags trainees stalling on OJT & recommends bay swaps.",
+            triggerType: "⚡ Proactive Push • Early OJT Bottleneck Alert",
+            triggerText: "Pace monitor flagged Sara Lin falling ~3 weeks behind on OJT due to low Bay 2 PM volume → ASCENT pushed a 1-click Bay 4 rebalance.",
+            userPrompt: null,
+            followUps: [
+              ["Why is Bay 2 PM volume low this month?", "📉 <strong>Schedule Root Cause:</strong> Bay 2 chambers are under a customer qualification freeze through Nov 15 (only 1 PM scheduled vs. 6 PMs in Fab 4 Bay 4)."],
+              ["Will moving Sara overload Bay 4 mentors?", "✅ <strong>Capacity Verified:</strong> The Fab 4 Bay 4 PM crew has 2 Primary FSEs (R. Diaz & K. Park) with 0 trainees currently assigned."]
+            ],
+            card: {
+              source: "WAFER Schedule + JourneyHub",
+              badge: "1 Trainee Stalled: Sara Lin",
+              badgeClass: "badge-amber",
+              impactStrip: ["<strong>Without ASCENT:</strong> OJT stalls are spotted months too late in manual spreadsheets.", "⚡ Caught 3 Wks Early"],
+              title: "Proactive Pace Alert — Sara Lin Stalled on OJT in Bay 2",
+              sub: "Bay 2 is under a customer qual freeze with only 1 scheduled PM this month. Moving Sara to Fab 4 Bay 4 restores her OJT pace:",
+              cohortTwin: true,
+              actions: [
+                { label: "Move Sara to Bay 4", primary: true, reply: "✅ Updated! Reassigned Sara Lin to Fab 4 Bay 4 PM crew — her OJT pace is back ON TRACK!" }
+              ]
+            }
+          },
+          {
+            id: "fsm_q4_pull",
+            mode: "pull",
+            step: "Use Case 6 • Ops Planning Q&A",
+            title: "Q4 Install Coverage Q&A",
+            desc: "Ask on demand who can staff upcoming installs & what blocks the rest.",
+            triggerType: "💬 On-Demand Pull • Manager Staffing Query",
+            triggerText: "Before Monday's customer install review, John asks ASCENT across JourneyHub & WAFER who will be ready for the Nov 18 Fab 4 install wave.",
+            userPrompt: "Who on my team will be qualified to staff the Nov 18 Fab 4 NovaDep install wave, and what's our #1 bottleneck?",
+            followUps: [
+              ["How much contractor cost does this save?", "💵 <strong>Budget Impact:</strong> Qualifying Adam & Sara internally by Nov 15 avoids 2 external contractor backfills (<strong>~$16,800 saved</strong> on the Fab 4 wave)."],
+              ["Can Daniel Chen cover Austin in December?", "📅 <strong>December Forecast:</strong> Yes — Daniel Chen is on pace to finish Secondary Installer in early December, ahead of the Dec 14 Chamber C install."]
+            ],
+            card: {
+              source: "JourneyHub + WAFER Schedule",
+              badge: "2 Ready Now • +2 Ready by Nov 15",
+              badgeClass: "badge-blue",
+              impactStrip: ["<strong>Without ASCENT:</strong> Managers stitch together 3 spreadsheets & LMS exports before every ops call.", "⚡ Instant Answer"],
+              title: "Nov 18 Fab 4 Install Wave — Team Readiness & Bottleneck",
+              sub: "You need 4 Secondary/Sustainer FSEs for Nov 18. You have 2 ready in cohort + 2 ready by Nov 15 if today's 2 actions are approved:",
+              table: {
+                headers: ["FSE / Bottleneck", "Nov 18 Status", "Required Manager Action"],
+                rows: [
+                  ["Carlos Diaz (EMP 151209)", "✅ Ready Now", "Secondary Certified • 68% toward Sustainer"],
+                  ["Adam Jones (EMP 158412)", "🟢 Ready Nov 12", "Approve Nov 4 Austin ILT-204 (Use Case 1)"],
+                  ["Sara Lin (EMP 157904)", "🟡 Ready Nov 15", "Move from Bay 2 ➔ Bay 4 PMs (Use Case 5)"],
+                  ["#1 Regional Bottleneck", "⚠️ RF Lab Seats", "Austin ILT-305 at 0 seats — use ILT-305B alternate"]
+                ]
+              },
+              actions: [
+                { label: "Lock Install Roster", primary: true, reply: "✅ Locked provisional Nov 18 Fab 4 install roster (C. Diaz, A. Jones, S. Lin + Lead M. Chen) and linked pending training approvals!" },
+                { label: "Export Ops Brief", primary: false, reply: "📊 Exported 1-page Q4 Readiness & Bottleneck summary to Teams 'Austin Field Ops' channel." }
+              ]
+            }
+          }
+        ]
+      }
+    };
+
+    let currentPersona = "fse";
+    let currentScenarioIndex = 0;
+    let currentTeamsTab = "chat";
+    let adamCurriculumPct = 74;
+    let adamRenewalDone = false;
+    let saraFixed = false;
+    let selectedRoadmapStage = "secondary";
+
+    function updateDfsTabPill(pulse = false) {
+      const pill = document.getElementById("dfs-tab-pill");
+      if (!pill) return;
+      if (currentPersona === "fse") {
+        pill.textContent = `${adamCurriculumPct}%`;
+      } else {
+        pill.textContent = saraFixed ? "9/9 On Track" : "1 At Risk";
+      }
+      if (pulse) {
+        pill.classList.add("synced-pulse");
+        setTimeout(() => pill.classList.remove("synced-pulse"), 900);
+      }
+    }
+
+    function switchTeamsTab(tab) {
+      currentTeamsTab = tab;
+      document.getElementById("tab-chat").classList.toggle("active", tab === "chat");
+      document.getElementById("tab-dfs").classList.toggle("active", tab === "dfs");
+
+      const chatStream = document.getElementById("chat-stream");
+      const composeBar = document.getElementById("compose-bar");
+      const dfsPane = document.getElementById("dfs-tracker-pane");
+
+      if (tab === "chat") {
+        chatStream.style.display = "flex";
+        composeBar.style.display = "block";
+        dfsPane.style.display = "none";
+      } else {
+        chatStream.style.display = "none";
+        composeBar.style.display = "none";
+        dfsPane.style.display = "flex";
+        renderDfsTrackerPane();
+      }
+    }
+
+    function selectDfsStage(stageKey) {
+      selectedRoadmapStage = stageKey;
+      renderDfsTrackerPane(false);
+    }
+
+    function renderDfsTrackerPane(animateRings = true) {
+      const pane = document.getElementById("dfs-tracker-pane");
+      if (!pane) return;
+
+      if (currentPersona === "fse") {
+        const targetOffset = (226.2 * (1 - adamCurriculumPct / 100)).toFixed(1);
+        const nodeRingOffset = (188.5 * (1 - adamCurriculumPct / 100)).toFixed(1);
+        const initMainOffset = animateRings ? "226.2" : targetOffset;
+        const initNodeOffset = animateRings ? "188.5" : nodeRingOffset;
+
+        pane.innerHTML = `
+          <!-- CARD 1: FSE READINESS JOURNEY PROFILE (STANDALONE DFS TRACKER VIEW) -->
+          <div class="dfs-card">
+            <div class="dfs-profile-row">
+              <div class="dfs-profile-left">
+                <div class="dfs-monogram">AJ</div>
+                <div>
+                  <div class="dfs-eyebrow">FSE Readiness Journey</div>
+                  <div class="dfs-name">Adam Jones</div>
+                  <div class="dfs-role-sub">Field Service Engineer · US Customer Support Team</div>
+                  <div class="dfs-meta-grid">
+                    <div class="dfs-meta-item">
+                      <span class="dfs-meta-k">EMP ID</span>
+                      <span class="dfs-meta-v">158412</span>
+                    </div>
+                    <div class="dfs-meta-item">
+                      <span class="dfs-meta-k">Region</span>
+                      <span class="dfs-meta-v">US · US-Austin-01</span>
+                    </div>
+                    <div class="dfs-meta-item">
+                      <span class="dfs-meta-k">Manager</span>
+                      <span class="dfs-meta-v">John Smith</span>
+                    </div>
+                    <div class="dfs-meta-item">
+                      <span class="dfs-meta-k">FSE Start</span>
+                      <span class="dfs-meta-v">Sep 24, 2026</span>
+                    </div>
+                  </div>
+                  <div class="dfs-meta-k">Active Curriculum</div>
+                  <div class="dfs-curriculum-line">NovaDep Oxide CVD Secondary Installer Program</div>
+                </div>
+              </div>
+
+              <div class="dfs-profile-right">
+                <div class="dfs-donut-wrap">
+                  <svg viewBox="0 0 86 86">
+                    <circle class="dfs-donut-bg" cx="43" cy="43" r="36"></circle>
+                    <circle id="dfs-main-arc" class="dfs-donut-fg" cx="43" cy="43" r="36" style="stroke-dashoffset:${initMainOffset};"></circle>
+                  </svg>
+                  <div class="dfs-donut-center">
+                    <span class="dfs-donut-pct">${adamCurriculumPct}%</span>
+                    <span class="dfs-donut-lbl">CURRICULUM</span>
+                  </div>
+                </div>
+
+                <div class="dfs-objective-box">
+                  <div class="dfs-meta-k">Current Objective</div>
+                  <div class="dfs-obj-title">Secondary Installer:<br/>Curriculum Completion</div>
+                  <div class="dfs-obj-ascent">${adamRenewalDone ? '✓ All Qualifications Active' : '⚠️ 1 Stamp Renewal Due'}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2: 4-STAGE CAREER ROADMAP (CLEAN STANDALONE VIEW) -->
+          <div class="dfs-card">
+            <div class="dfs-roadmap-top">
+              <div class="dfs-eyebrow" style="margin-bottom:0;">Career Roadmap</div>
+              <div class="dfs-legend">
+                <span class="dfs-leg-item"><span style="width:9px;height:9px;border-radius:50%;background:#1b6b43;display:inline-block;"></span> Complete</span>
+                <span class="dfs-leg-item"><span style="width:9px;height:9px;border-radius:50%;background:linear-gradient(90deg,#1b6b43 50%,#d6d7ce 50%);display:inline-block;"></span> In progress</span>
+                <span class="dfs-leg-item"><span style="width:9px;height:9px;border-radius:50%;border:2px solid #1b6b43;display:inline-block;"></span> Available</span>
+                <span class="dfs-leg-item"><span style="width:9px;height:9px;border-radius:50%;background:#c8c7be;display:inline-block;"></span> Locked</span>
+                <span class="dfs-leg-item"><span style="width:14px;height:2px;background:#1b6b43;display:inline-block;"></span> Unlocked path</span>
+                <span class="dfs-leg-item"><span style="width:14px;border-top:2px dashed #9ca3af;display:inline-block;"></span> Potential path</span>
+              </div>
+            </div>
+
+            <div class="dfs-nodes-row">
+              <div class="dfs-stage-node ${selectedRoadmapStage === 'onboarding' ? 'selected' : ''}" onclick="selectDfsStage('onboarding')">
+                <div class="dfs-circle complete">✓</div>
+                <div class="dfs-stage-name">Onboarding</div>
+                <span class="dfs-track-pill">On Track</span>
+                <div class="dfs-stage-eta">Completed</div>
+              </div>
+
+              <div class="dfs-arrow-solid"></div>
+
+              <div class="dfs-stage-node ${selectedRoadmapStage === 'secondary' ? 'selected' : ''}" onclick="selectDfsStage('secondary')">
+                <div class="dfs-circle in-progress">
+                  <svg viewBox="0 0 74 74" style="width:78px;height:78px;transform:rotate(-90deg);">
+                    <circle cx="37" cy="37" r="30" fill="none" stroke="#e4e5dd" stroke-width="7"></circle>
+                    <circle id="dfs-node-arc" cx="37" cy="37" r="30" fill="none" stroke="#1b6b43" stroke-width="7" stroke-linecap="round" stroke-dasharray="188.5" style="stroke-dashoffset:${initNodeOffset}; transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1);"></circle>
+                  </svg>
+                  <span style="position:absolute;font-size:17px;font-weight:800;color:#18221d;">${adamCurriculumPct}%</span>
+                </div>
+                <div class="dfs-stage-name">Secondary Installer</div>
+                <span class="dfs-track-pill">On Track</span>
+                <div class="dfs-stage-eta" style="color:#1b6b43;">In Progress</div>
+              </div>
+
+              <div class="dfs-arrow-dashed"></div>
+
+              <div class="dfs-stage-node locked-txt ${selectedRoadmapStage === 'primary' ? 'selected' : ''}" onclick="selectDfsStage('primary')">
+                <div class="dfs-circle locked">🔒</div>
+                <div class="dfs-stage-name">Primary Installer</div>
+                <span class="dfs-track-pill">On Track</span>
+                <div class="dfs-stage-eta">Next Milestone</div>
+              </div>
+
+              <div class="dfs-arrow-dashed"></div>
+
+              <div class="dfs-stage-node locked-txt ${selectedRoadmapStage === 'sustainer' ? 'selected' : ''}" onclick="selectDfsStage('sustainer')">
+                <div class="dfs-circle locked">
+                  🔒
+                  <span class="dfs-finish-flag" title="Target Readiness Milestone">🏁</span>
+                </div>
+                <div class="dfs-stage-name">Sustainer</div>
+                <span class="dfs-track-pill">On Track</span>
+                <div class="dfs-stage-eta" style="color:#3f469c;">Target Role</div>
+              </div>
+            </div>
+
+            <!-- Dashed Direct Sustainer Alternate Tracks -->
+            <svg class="dfs-bypass-svg" viewBox="0 0 800 36" preserveAspectRatio="none">
+              <path d="M 295 2 L 295 16 L 698 16 L 698 2" fill="none" stroke="#c2c4ba" stroke-width="2" stroke-dasharray="6 5"></path>
+              <path d="M 98 2 L 98 30 L 714 30 L 714 2" fill="none" stroke="#c2c4ba" stroke-width="2" stroke-dasharray="6 5"></path>
+            </svg>
+          </div>
+        `;
+
+        if (animateRings) {
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              const mainArc = document.getElementById("dfs-main-arc");
+              const nodeArc = document.getElementById("dfs-node-arc");
+              if (mainArc) mainArc.style.strokeDashoffset = targetOffset;
+              if (nodeArc) nodeArc.style.strokeDashoffset = nodeRingOffset;
+            }, 35);
+          });
+        }
+      } else {
+        pane.innerHTML = `
+          <div class="dfs-card">
+            <div class="dfs-roadmap-top" style="margin-bottom:6px;">
+              <div>
+                <div class="dfs-eyebrow">DFS Tracker · Manager Cohort Readiness</div>
+                <div class="dfs-name" style="font-size:19px;">Customer Support Team — NovaDep Oxide CVD</div>
+                <div class="dfs-role-sub" style="margin-bottom:4px;">Manager: John Smith · US-Austin-01 · 9 Active Trainees</div>
+              </div>
+              <span class="dfs-track-pill ${saraFixed ? '' : 'risk'}" style="font-size:11px; padding:5px 12px;">
+                ${saraFixed ? '✓ All 9 Hires On Track' : '⚠️ 1 Trainee Stalled'}
+              </span>
+            </div>
+
+            <div class="dfs-roster-row">
+              <div style="display:flex; align-items:center; gap:12px; min-width:250px;">
+                <div class="dfs-monogram" style="width:40px;height:40px;font-size:14px;border-radius:10px;margin:0;">AJ</div>
+                <div>
+                  <div style="font-weight:800; font-size:13.5px; color:#18221d;">Adam Jones <span style="font-weight:600; color:#6b7280; font-size:11.5px;">· EMP ID 158412 · US-Austin-01</span></div>
+                  <div style="font-size:11.5px; color:#4b5563;">NovaDep Oxide CVD Secondary Installer Program</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:14px;">
+                <span style="font-size:12.5px; font-weight:800; color:#1b6b43;">Secondary Installer: ${adamCurriculumPct}%</span>
+                <span class="dfs-track-pill">On Track</span>
+              </div>
+            </div>
+
+            <div class="dfs-roster-row">
+              <div style="display:flex; align-items:center; gap:12px; min-width:250px;">
+                <div class="dfs-monogram" style="width:40px;height:40px;font-size:14px;border-radius:10px;margin:0;">DC</div>
+                <div>
+                  <div style="font-weight:800; font-size:13.5px; color:#18221d;">Daniel Chen <span style="font-weight:600; color:#6b7280; font-size:11.5px;">· EMP ID 154673 · TW-Hsinchu-01</span></div>
+                  <div style="font-size:11.5px; color:#4b5563;">NovaDep Oxide CVD Secondary Installer Program</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:14px;">
+                <span style="font-size:12.5px; font-weight:800; color:#1b6b43;">Secondary Installer: 38%</span>
+                <span class="dfs-track-pill">On Track</span>
+              </div>
+            </div>
+
+            <div class="dfs-roster-row" style="${saraFixed ? '' : 'border-color:#fca5a5; background:#fffafa;'}">
+              <div style="display:flex; align-items:center; gap:12px; min-width:250px;">
+                <div class="dfs-monogram" style="width:40px;height:40px;font-size:14px;border-radius:10px;margin:0; ${saraFixed ? '' : 'background:linear-gradient(145deg,#dc2626,#991b1b);'}">SL</div>
+                <div>
+                  <div style="font-weight:800; font-size:13.5px; color:#18221d;">Sara Lin <span style="font-weight:600; color:#6b7280; font-size:11.5px;">· EMP ID 157904 · US-Austin-01</span></div>
+                  <div style="font-size:11.5px; color:#4b5563;">${saraFixed ? 'Reassigned to Fab 4 Bay 4 PM crew • OJT pace restored' : 'Low PM volume in Bay 2 • Needs OJT bay rebalance'}</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:14px;">
+                <span style="font-size:12.5px; font-weight:800; color:${saraFixed ? '#1b6b43' : '#b91c1c'};">Secondary Installer: 52%</span>
+                <span class="dfs-track-pill ${saraFixed ? '' : 'risk'}">${saraFixed ? 'On Track' : 'Behind Pace · -3 Wks'}</span>
+              </div>
+            </div>
+
+            <div class="dfs-roster-row">
+              <div style="display:flex; align-items:center; gap:12px; min-width:250px;">
+                <div class="dfs-monogram" style="width:40px;height:40px;font-size:14px;border-radius:10px;margin:0;">CD</div>
+                <div>
+                  <div style="font-weight:800; font-size:13.5px; color:#18221d;">Carlos Diaz <span style="font-weight:600; color:#6b7280; font-size:11.5px;">· EMP ID 151209 · US-Austin-01</span></div>
+                  <div style="font-size:11.5px; color:#4b5563;">Direct Secondary ➔ Sustainer Track (Practicing WAFER Fault #5/10)</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:14px;">
+                <span style="font-size:12.5px; font-weight:800; color:#1b6b43;">Sustainer 🏁: 68%</span>
+                <span class="dfs-track-pill">On Track</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function switchPersona(persona) {
+      currentPersona = persona;
+      currentScenarioIndex = 0;
+      document.getElementById("btn-fse").classList.toggle("active", persona === "fse");
+      document.getElementById("btn-fsm").classList.toggle("active", persona === "fsm");
+
+      const pData = DATA[persona];
+      document.getElementById("sidebar-title").textContent = pData.headerTitle;
+      document.getElementById("sidebar-sub").textContent = pData.headerSub;
+      document.getElementById("active-user-pill").textContent = pData.pill;
+
+      updateDfsTabPill(false);
+      renderSidebar();
+      renderQuickChips();
+      renderScenario(0);
+      if (currentTeamsTab === "dfs") {
+        renderDfsTrackerPane(true);
+      }
+    }
+
+    function renderSidebar() {
+      const list = document.getElementById("scenario-list");
+      list.innerHTML = "";
+      DATA[currentPersona].scenarios.forEach((sc, idx) => {
+        const div = document.createElement("div");
+        div.className = "scenario-item" + (idx === currentScenarioIndex && currentTeamsTab === "chat" ? " active" : "");
+        div.onclick = () => {
+          if (currentTeamsTab !== "chat") switchTeamsTab("chat");
+          renderScenario(idx);
+        };
+        const isPush = sc.mode !== "pull";
+        const modeLabel = isPush ? "⚡ Push" : "💬 Pull";
+        const modeCls = isPush ? "push" : "pull";
+        div.innerHTML = `
+          <div class="sc-top-row">
+            <span class="sc-step">${sc.step}</span>
+            <span class="mode-pill ${modeCls}">${modeLabel}</span>
+          </div>
+          <div class="sc-title">${sc.title}</div>
+          <div class="sc-desc">${sc.desc}</div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function renderQuickChips() {
+      const chipsDiv = document.getElementById("prompt-chips");
+      const sc = DATA[currentPersona].scenarios[currentScenarioIndex];
+      chipsDiv.innerHTML = `<span class="chip-label">💬 Ask ASCENT (Pull):</span>`;
+      const followUps = (sc && sc.followUps) ? sc.followUps : [];
+      followUps.forEach(([qText, aHtml]) => {
+        const btn = document.createElement("button");
+        btn.className = "prompt-chip";
+        btn.textContent = qText;
+        btn.onclick = () => askFollowUp(qText, aHtml);
+        chipsDiv.appendChild(btn);
+      });
+    }
+
+    function renderScenario(idx) {
+      currentScenarioIndex = idx;
+      renderSidebar();
+      renderQuickChips();
+      const sc = DATA[currentPersona].scenarios[idx];
+      const stream = document.getElementById("chat-stream");
+      const isPush = sc.mode !== "pull";
+      const bannerCls = isPush ? "push-mode" : "pull-mode";
+      const bannerPill = isPush
+        ? `<span class="mode-pill push">⚡ Proactive Push</span>`
+        : `<span class="mode-pill pull">💬 On-Demand Pull</span>`;
+
+      let html = `
+        <div class="trigger-banner ${bannerCls}">
+          <div><span class="trigger-type">${sc.triggerType}:</span> ${sc.triggerText}</div>
+          ${bannerPill}
+        </div>
+      `;
+
+      if (sc.userPrompt) {
+        const speaker = currentPersona === "fse" ? "Adam Jones (FSE)" : "John Smith (Manager)";
+        html += `
+          <div class="user-msg-row">
+            <div class="user-bubble">
+              <div class="user-bubble-meta">${speaker}</div>
+              ${sc.userPrompt}
+            </div>
+          </div>
+        `;
+      }
+
+      const c = sc.card;
+      let bodyHtml = "";
+
+      if (c.impactStrip) {
+        bodyHtml += `
+          <div class="impact-strip">
+            <span>${c.impactStrip[0]}</span>
+            <span class="impact-pill">${c.impactStrip[1]}</span>
+          </div>
+        `;
+      }
+
+      if (c.gamifiedPassport) {
+        bodyHtml += `
+          <!-- INLINE GRAPHICAL DFS TRACKER WIDGET INSIDE TEAMS ADAPTIVE CARD -->
+          <div class="ac-dfs-box">
+            <div class="ac-dfs-header">
+              <div class="ac-dfs-id-group">
+                <div class="ac-dfs-mono">AJ</div>
+                <div>
+                  <div class="dfs-eyebrow" style="margin-bottom:2px;">FSE Readiness Journey · EMP ID 158412</div>
+                  <div style="font-size:14px; font-weight:800; color:#18221d;">Adam Jones <span style="font-weight:600; font-size:11.5px; color:#5b665f;">· US-Austin-01</span></div>
+                  <div style="font-size:11.5px; font-weight:700; color:#1b6b43;">NovaDep Oxide CVD Secondary Installer Program</div>
+                </div>
+              </div>
+
+              <div class="ac-dfs-ring-group">
+                <div class="ac-dfs-ring">
+                  <svg viewBox="0 0 62 62">
+                    <circle cx="31" cy="31" r="25" fill="none" stroke="#e4e5dd" stroke-width="6"></circle>
+                    <circle id="gp-hero-arc" cx="31" cy="31" r="25" fill="none" stroke="#1e754c" stroke-width="6" stroke-linecap="round" stroke-dasharray="157.1" style="stroke-dashoffset:157.1; transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1);"></circle>
+                  </svg>
+                  <div class="ac-dfs-ring-center">
+                    <span id="gp-hero-pct" style="font-size:13.5px; font-weight:800; color:#18221d;">${adamCurriculumPct}%</span>
+                    <span style="font-size:7px; font-weight:700; color:#6c7770;">CURRICULUM</span>
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <div class="dfs-meta-k">Stamp Status</div>
+                  <div id="gp-install-eta" style="font-size:13.5px; font-weight:800; color:${adamRenewalDone ? '#1b6b43' : '#b45309'};">${adamRenewalDone ? 'All Active ✅' : '1 Expiring Soon'}</div>
+                  <div id="gp-install-sub" style="font-size:10.5px; color:#5b665f;">${adamRenewalDone ? 'Valid for 90 days' : 'Cryo Pump • 5d left'}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="gp-badge-grid" class="gp-badge-grid">
+            <!-- Card 1: 3D Flip Gold Medallion -->
+            <div id="gp-vac-scene" class="gp-flip-scene" onclick="this.classList.toggle('is-flipped')">
+              <div class="gp-flip-inner">
+                <div class="gp-face gp-face-front gold">
+                  <span class="gp-stamp-seal">✓ STAMPED</span>
+                  <div class="gp-medallion">
+                    <svg viewBox="0 0 52 52">
+                      <circle class="gp-med-bg" cx="26" cy="26" r="22"></circle>
+                      <circle id="gp-med-1" class="gp-med-fg" cx="26" cy="26" r="22" style="stroke:#10b981;"></circle>
+                    </svg>
+                    <span class="gp-med-emoji">🏅</span>
+                  </div>
+                  <div class="gp-badge-title">Vacuum Systems</div>
+                  <span class="gp-badge-tier tier-gold">3/3 VERIFIED</span>
+                  <div class="gp-badge-sub">Carried over from Etch</div>
+                  <div class="gp-flip-hint">↻ Tap to see stamps</div>
+                </div>
+                <div class="gp-face gp-face-back">
+                  <div class="gp-back-title">🛂 WAFER Stamps</div>
+                  <div class="gp-stamp-row">✓ WO #88104 • Etch</div>
+                  <div class="gp-stamp-row">✓ WO #88219 • Etch</div>
+                  <div class="gp-stamp-row">✓ WO #88412 • He Pass</div>
+                  <div class="gp-flip-hint">↻ Tap to flip back</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: 3D Flip In-Progress Medallion -->
+            <div id="gp-cvd-scene" class="gp-flip-scene" onclick="this.classList.toggle('is-flipped')">
+              <div class="gp-flip-inner">
+                <div class="gp-face gp-face-front silver">
+                  <div class="gp-medallion">
+                    <svg viewBox="0 0 52 52">
+                      <circle class="gp-med-bg" cx="26" cy="26" r="22"></circle>
+                      <circle id="gp-med-2" class="gp-med-fg" cx="26" cy="26" r="22" style="stroke:#3b82f6;"></circle>
+                    </svg>
+                    <span class="gp-med-emoji">🔧</span>
+                  </div>
+                  <div class="gp-badge-title">CVD Gas Box PM</div>
+                  <span class="gp-badge-tier tier-silver">2/3 IN PROGRESS</span>
+                  <div class="gp-badge-sub">1 job left (FSM assigned)</div>
+                  <div class="gp-flip-hint">↻ Tap to see stamps</div>
+                </div>
+                <div class="gp-face gp-face-back">
+                  <div class="gp-back-title">🛂 WAFER Stamps</div>
+                  <div class="gp-stamp-row">✓ WO #87910 • M. Chen</div>
+                  <div class="gp-stamp-row">✓ WO #88044 • R. Diaz</div>
+                  <div class="gp-stamp-row" style="border-style:dashed; color:#1d4ed8;">⏳ Assigned Next Week</div>
+                  <div class="gp-flip-hint">↻ Tap to flip back</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: 3D Flip Expiring Medallion (Interactive Stamp Slam!) -->
+            <div id="gp-cryo-scene" class="gp-flip-scene" onclick="this.classList.toggle('is-flipped')">
+              <div class="gp-flip-inner">
+                <div id="gp-cryo-front" class="gp-face gp-face-front rusty">
+                  <span id="gp-cryo-seal" class="gp-stamp-seal" style="display:none;">✓ STAMPED</span>
+                  <div class="gp-medallion">
+                    <svg viewBox="0 0 52 52">
+                      <circle class="gp-med-bg" cx="26" cy="26" r="22"></circle>
+                      <circle id="gp-med-3" class="gp-med-fg" cx="26" cy="26" r="22" style="stroke:#f59e0b;"></circle>
+                    </svg>
+                    <span id="gp-cryo-emoji" class="gp-med-emoji">⏱️</span>
+                  </div>
+                  <div class="gp-badge-title">Cryo Pump Swap</div>
+                  <span id="gp-cryo-tier" class="gp-badge-tier tier-rusty">95d • REFRESH DUE</span>
+                  <div id="gp-cryo-sub" class="gp-badge-sub">Quick quiz renews 90d</div>
+                  <div class="gp-flip-hint">↻ Tap to see stamps</div>
+                </div>
+                <div class="gp-face gp-face-back">
+                  <div class="gp-back-title">🛂 Stamp Status</div>
+                  <div class="gp-stamp-row">✓ WO #86102 (95d ago)</div>
+                  <div id="gp-cryo-back-note" class="gp-stamp-row" style="border-color:#f59e0b; color:#92400e;">⚠️ Over 90d — Refresh below</div>
+                  <div class="gp-flip-hint">↻ Tap to flip back</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (c.dfsSignoffPreview) {
+        const signoffOffset = (157.1 * (1 - adamCurriculumPct / 100)).toFixed(1);
+        bodyHtml += `
+          <div id="signoff-dfs-box" class="ac-dfs-box" style="margin-bottom:12px; position:relative;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+              <div class="ac-dfs-id-group">
+                <div class="ac-dfs-mono">AJ</div>
+                <div>
+                  <div class="dfs-eyebrow" style="margin-bottom:2px;">Curriculum Progress Preview</div>
+                  <div style="font-size:13.5px; font-weight:800; color:#18221d;">Adam Jones · EMP ID 158412</div>
+                  <div style="font-size:11.5px; color:#4b5563;">NovaDep Oxide CVD Secondary Installer</div>
+                </div>
+              </div>
+              <div class="ac-dfs-ring-group">
+                <div class="ac-dfs-ring">
+                  <svg viewBox="0 0 62 62">
+                    <circle cx="31" cy="31" r="25" fill="none" stroke="#e4e5dd" stroke-width="6"></circle>
+                    <circle id="signoff-dfs-arc" cx="31" cy="31" r="25" fill="none" stroke="#1e754c" stroke-width="6" stroke-linecap="round" stroke-dasharray="157.1" style="stroke-dashoffset:${signoffOffset}; transition: stroke-dashoffset 0.85s cubic-bezier(0.22, 1, 0.36, 1);"></circle>
+                  </svg>
+                  <div class="ac-dfs-ring-center">
+                    <span id="signoff-dfs-pct" style="font-size:13.5px; font-weight:800; color:#18221d;">${adamCurriculumPct}%</span>
+                    <span style="font-size:7px; font-weight:700; color:#6c7770;">CURRICULUM</span>
+                  </div>
+                </div>
+                <div>
+                  <span class="dfs-track-pill">On Track</span>
+                  <div id="signoff-dfs-note" style="font-size:11px; font-weight:700; color:#1b6b43; margin-top:4px;">Sign-off bumps to 84%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (c.cohortTwin) {
+        bodyHtml += `
+          <!-- GRAPHICAL 2x2 DFS TRACKER COHORT CARDS RENDERED INLINE IN CHAT -->
+          <div id="cohort-bars-box" class="ac-dfs-cohort-grid">
+            <div class="ac-cohort-tile">
+              <div style="display:flex; align-items:center; gap:9px;">
+                <div class="ac-dfs-mono" style="width:36px;height:36px;font-size:13px;border-radius:9px;">AJ</div>
+                <div>
+                  <div style="font-size:12.5px; font-weight:800; color:#18221d;">Adam Jones</div>
+                  <div style="font-size:10.5px; color:#5b665f;">EMP ID 158412 · Secondary</div>
+                  <span class="dfs-track-pill" style="margin-top:3px; display:inline-block;">On Track</span>
+                </div>
+              </div>
+              <div class="ac-dfs-ring" style="width:48px;height:48px;">
+                <svg viewBox="0 0 48 48" style="width:48px;height:48px;">
+                  <circle cx="24" cy="24" r="19" fill="none" stroke="#e4e5dd" stroke-width="5"></circle>
+                  <circle cx="24" cy="24" r="19" fill="none" stroke="#1e754c" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="${(119.4 * (1 - adamCurriculumPct / 100)).toFixed(1)}"></circle>
+                </svg>
+                <div class="ac-dfs-ring-center"><span style="font-size:11px;font-weight:800;">${adamCurriculumPct}%</span></div>
+              </div>
+            </div>
+
+            <div class="ac-cohort-tile">
+              <div style="display:flex; align-items:center; gap:9px;">
+                <div class="ac-dfs-mono" style="width:36px;height:36px;font-size:13px;border-radius:9px;">DC</div>
+                <div>
+                  <div style="font-size:12.5px; font-weight:800; color:#18221d;">Daniel Chen</div>
+                  <div style="font-size:10.5px; color:#5b665f;">EMP ID 154673 · Secondary</div>
+                  <span class="dfs-track-pill" style="margin-top:3px; display:inline-block;">On Track</span>
+                </div>
+              </div>
+              <div class="ac-dfs-ring" style="width:48px;height:48px;">
+                <svg viewBox="0 0 48 48" style="width:48px;height:48px;">
+                  <circle cx="24" cy="24" r="19" fill="none" stroke="#e4e5dd" stroke-width="5"></circle>
+                  <circle cx="24" cy="24" r="19" fill="none" stroke="#1e754c" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="74"></circle>
+                </svg>
+                <div class="ac-dfs-ring-center"><span style="font-size:11px;font-weight:800;">38%</span></div>
+              </div>
+            </div>
+
+            <div id="sara-tile" class="ac-cohort-tile ${saraFixed ? '' : 'at-risk'}">
+              <div style="display:flex; align-items:center; gap:9px;">
+                <div id="sara-mono" class="ac-dfs-mono" style="width:36px;height:36px;font-size:13px;border-radius:9px; ${saraFixed ? '' : 'background:linear-gradient(145deg,#dc2626,#991b1b);'}">SL</div>
+                <div>
+                  <div style="font-size:12.5px; font-weight:800; color:#18221d;">Sara Lin</div>
+                  <div id="sara-sub" style="font-size:10.5px; color:#5b665f;">${saraFixed ? 'Fab 4 PMs assigned' : 'Low PMs in Bay 2'}</div>
+                  <span id="sara-eta" class="dfs-track-pill ${saraFixed ? '' : 'risk'}" style="margin-top:3px; display:inline-block;">${saraFixed ? 'On Track' : 'Behind Pace · -3 Wks'}</span>
+                </div>
+              </div>
+              <div class="ac-dfs-ring" style="width:48px;height:48px;">
+                <svg viewBox="0 0 48 48" style="width:48px;height:48px;">
+                  <circle cx="24" cy="24" r="19" fill="none" stroke="#e4e5dd" stroke-width="5"></circle>
+                  <circle id="sara-ring" cx="24" cy="24" r="19" fill="none" stroke="${saraFixed ? '#1e754c' : '#dc2626'}" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="57.3"></circle>
+                </svg>
+                <div class="ac-dfs-ring-center"><span style="font-size:11px;font-weight:800;">52%</span></div>
+              </div>
+            </div>
+
+            <div class="ac-cohort-tile">
+              <div style="display:flex; align-items:center; gap:9px;">
+                <div class="ac-dfs-mono" style="width:36px;height:36px;font-size:13px;border-radius:9px;">CD</div>
+                <div>
+                  <div style="font-size:12.5px; font-weight:800; color:#18221d;">Carlos Diaz</div>
+                  <div style="font-size:10.5px; color:#5b665f;">EMP ID 151209 · Sustainer 🏁</div>
+                  <span class="dfs-track-pill" style="margin-top:3px; display:inline-block;">On Track</span>
+                </div>
+              </div>
+              <div class="ac-dfs-ring" style="width:48px;height:48px;">
+                <svg viewBox="0 0 48 48" style="width:48px;height:48px;">
+                  <circle cx="24" cy="24" r="19" fill="none" stroke="#e4e5dd" stroke-width="5"></circle>
+                  <circle cx="24" cy="24" r="19" fill="none" stroke="#1e754c" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="38.2"></circle>
+                </svg>
+                <div class="ac-dfs-ring-center"><span style="font-size:11px;font-weight:800;">68%</span></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (c.facts) {
+        bodyHtml += `<div class="ac-facts">` +
+          c.facts.map(([k, v]) => `<div class="fact-k">${k}</div><div class="fact-v">${v}</div>`).join("") +
+          `</div>`;
+      }
+
+      if (c.table) {
+        bodyHtml += `<table class="ac-table"><thead><tr>` +
+          c.table.headers.map(h => `<th>${h}</th>`).join("") +
+          `</tr></thead><tbody>` +
+          c.table.rows.map(r => `<tr>` + r.map(cell => `<td>${cell}</td>`).join("") + `</tr>`).join("") +
+          `</tbody></table>`;
+      }
+
+      const actionsHtml = c.actions.map((a, aIdx) =>
+        `<button class="ac-btn ${a.primary ? 'primary' : ''}" onclick="triggerCardAction(${aIdx})">${a.label}</button>`
+      ).join("");
+
+      html += `
+        <div class="bot-msg-row">
+          <div class="bot-avatar" title="ASCENT Onboarding Assistant">
+            <svg class="everest-svg"><use href="#everest-peak"></use></svg>
+          </div>
+          <div class="adaptive-card">
+            <div class="ac-header">
+              <span class="ac-source">${c.source}</span>
+              <span id="ac-top-badge" class="ac-badge ${c.badgeClass}">${c.badge}</span>
+            </div>
+            <div class="ac-title">${c.title}</div>
+            <div class="ac-sub">${c.sub}</div>
+            ${bodyHtml}
+            <div class="ac-actions">${actionsHtml}</div>
+
+            <!-- INTERACTIVE 1-TAP CRYO LIGHTNING REFRESH PANEL -->
+            <div id="refresh-panel" style="display:none; margin-top:12px; padding:12px; background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #f59e0b; border-radius:8px; font-size:12.5px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-weight:800; color:#92400e;">⚡ 1-Tap Skill Refresher: Cryo Pump Regen</span>
+                <span style="background:#fde68a; color:#78350f; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:999px;">Renews 90d Stamp</span>
+              </div>
+              <div style="color:#1e293b; margin-bottom:9px;">
+                Before opening the roughing valve during Cryo regeneration, chamber crossover pressure must be below:
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="ac-btn primary" onclick="gradeCryoRefresh(true)">Below 50 mTorr</button>
+                <button class="ac-btn" onclick="gradeCryoRefresh(false)">760 Torr (Atmosphere)</button>
+              </div>
+            </div>
+
+            <!-- INTERACTIVE 2-MIN SCENARIO CHECK ROLE-PLAY PANEL (USE CASE 2) -->
+            <div id="roleplay-panel" style="display:none; margin-top:12px; padding:12px; background:#f0f2f9; border:1px solid #5b5fc7; border-radius:6px; font-size:12.5px;">
+              <div style="font-weight:700; color:#292841; margin-bottom:6px;">
+                🎙️ 2-Min Pre-Job Safety Check (RF Match Swap)
+              </div>
+              <div style="color:#334155; margin-bottom:10px;">
+                <strong>Question:</strong> Reflected RF power spikes &gt; 45W right after an RF Match swap. What do you check first?
+              </div>
+              <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
+                <button class="ac-btn" style="text-align:left;" onclick="gradeRolePlay('pass')">
+                  <strong>A:</strong> Check N2 interlock, RF cable torque &amp; run Auto-Tune
+                </button>
+                <button class="ac-btn" style="text-align:left;" onclick="gradeRolePlay('vent')">
+                  <strong>B:</strong> Vent the chamber and replace the RF generator
+                </button>
+                <button class="ac-btn" style="text-align:left;" onclick="gradeRolePlay('escalate')">
+                  <strong>C:</strong> Page the Senior FSE right away
+                </button>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <input id="rp-custom-ans" type="text" placeholder="Or type your own answer..." style="flex:1; padding:6px 10px; border:1px solid #c8c6c4; border-radius:4px; font-size:12px;" />
+                <button class="ac-btn primary" onclick="gradeRolePlay('custom')">Submit</button>
+              </div>
+            </div>
+
+            <!-- PLAYABLE SUSTAINER FAULT SIMULATOR PANEL (USE CASE 4) -->
+            <div id="faultsim-panel" style="display:none; margin-top:12px; padding:12px; background:#0f172a; color:#f8fafc; border:1px solid #38bdf8; border-radius:8px; font-size:12.5px; position:relative; overflow:hidden;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-weight:700; color:#38bdf8;">🕹️ PAST WAFER CASE #77109 (CHAMBER B)</span>
+                <span style="background:rgba(56,189,248,0.18); color:#bae6fd; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700;">Practice Case 4/10</span>
+              </div>
+              <div style="color:#cbd5e1; margin-bottom:10px; font-family:monospace; font-size:11.5px; background:rgba(255,255,255,0.06); padding:7px 10px; border-radius:5px;">
+                Reflected RF = 58W (High) | Throttle Valve = Hunting 18–64% | Helium Leak = Normal
+              </div>
+              <div style="margin-bottom:8px; font-weight:600; color:#f1f5f9;">Pick your first diagnostic step:</div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <button class="ac-btn" style="text-align:left; background:#1e293b; color:#f8fafc; border-color:#475569;" onclick="gradeFaultSim('best')">
+                  <strong>Step A:</strong> Lock Throttle Valve at 35% &amp; run RF sweep (no chamber vent)
+                </button>
+                <button class="ac-btn" style="text-align:left; background:#1e293b; color:#f8fafc; border-color:#475569;" onclick="gradeFaultSim('slow')">
+                  <strong>Step B:</strong> Vent chamber &amp; replace valve O-rings (4.5 hrs downtime)
+                </button>
+              </div>
+            </div>
+
+            <div id="ac-result-box" class="ac-result"></div>
+
+            <!-- NATIVE AI RESULT FEEDBACK FOOTER -->
+            <div class="ac-feedback-bar">
+              <span>Was this helpful?</span>
+              <div class="fb-buttons">
+                <button id="fb-up" class="fb-btn" onclick="submitFeedback('up')">👍 Helpful</button>
+                <button id="fb-down" class="fb-btn" onclick="submitFeedback('down')">👎 Report Issue</button>
+              </div>
+            </div>
+            <div id="fb-drawer" class="fb-drawer">
+              <div><strong>What looks wrong?</strong></div>
+              <div class="fb-drawer-row">
+                <input id="fb-input" type="text" placeholder="e.g., Wrong course code or shift conflict..." />
+                <button class="ac-btn primary" onclick="sendFeedbackNote()">Send</button>
+              </div>
+            </div>
+            <div id="fb-toast" class="fb-toast"></div>
+          </div>
+        </div>
+      `;
+
+      stream.innerHTML = html;
+
+      // Animate inline DFS Tracker SVG Rings & Medallion Rings smoothly on entry!
+      if (c.gamifiedPassport) {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            const heroArc = document.getElementById("gp-hero-arc");
+            const nodeArc = document.getElementById("gp-node-arc");
+            const med1 = document.getElementById("gp-med-1");
+            const med2 = document.getElementById("gp-med-2");
+            const med3 = document.getElementById("gp-med-3");
+            const heroOffset = (157.1 * (1 - adamCurriculumPct / 100)).toFixed(1);
+            const nodeOffset = (125.7 * (1 - adamCurriculumPct / 100)).toFixed(1);
+            if (heroArc) heroArc.style.strokeDashoffset = heroOffset;
+            if (nodeArc) nodeArc.style.strokeDashoffset = nodeOffset;
+            if (med1) med1.style.strokeDashoffset = "0";      // 3/3 = 100%
+            if (med2) med2.style.strokeDashoffset = "46";     // 2/3 = 67%
+            if (med3) med3.style.strokeDashoffset = adamCurriculumPct >= 92 ? "0" : "96";
+          }, 40);
+        });
+      }
+    }
+
+    function submitFeedback(type) {
+      const upBtn = document.getElementById("fb-up");
+      const downBtn = document.getElementById("fb-down");
+      const drawer = document.getElementById("fb-drawer");
+      const toast = document.getElementById("fb-toast");
+
+      upBtn.classList.toggle("active-up", type === "up");
+      downBtn.classList.toggle("active-down", type === "down");
+
+      if (type === "up") {
+        drawer.style.display = "none";
+        toast.style.display = "block";
+        toast.textContent = "✅ Feedback recorded: Marked as accurate AI recommendation.";
+      } else {
+        toast.style.display = "none";
+        drawer.style.display = "block";
+      }
+    }
+
+    function sendFeedbackNote() {
+      const note = document.getElementById("fb-input").value.trim() || "Flagged for review";
+      document.getElementById("fb-drawer").style.display = "none";
+      const toast = document.getElementById("fb-toast");
+      toast.style.display = "block";
+      toast.textContent = `🛠️ Sent to ASCENT Background Triage Queue ("${note}") — zero delay to your workflow.`;
+    }
+
+    function spawnConfettiBurst(targetEl) {
+      if (!targetEl) return;
+      const colors = ["#10b981", "#facc15", "#38bdf8", "#a855f7", "#fb7185"];
+      for (let i = 0; i < 22; i++) {
+        const dot = document.createElement("span");
+        dot.className = "confetti-dot";
+        dot.style.background = colors[i % colors.length];
+        dot.style.left = "50%";
+        dot.style.top = "38%";
+        const angle = (Math.PI * 2 * i) / 22;
+        const dist = 36 + Math.random() * 55;
+        dot.style.setProperty("--tx", `${Math.cos(angle) * dist}px`);
+        dot.style.setProperty("--ty", `${Math.sin(angle) * dist - 12}px`);
+        dot.style.setProperty("--rot", `${Math.floor(Math.random() * 360)}deg`);
+        targetEl.appendChild(dot);
+        setTimeout(() => dot.remove(), 900);
+      }
+    }
+
+    function animateDayCounter(el, startDay, endDay, suffix = "") {
+      if (!el) return;
+      const steps = Math.abs(startDay - endDay);
+      if (steps === 0) return;
+      let current = startDay;
+      const dir = endDay < startDay ? -1 : 1;
+      const timer = setInterval(() => {
+        current += dir;
+        el.textContent = `Day ${current}${current === endDay ? suffix : ""}`;
+        if (current === endDay) clearInterval(timer);
+      }, 65);
+    }
+
+    function gradeFaultSim(move) {
+      const box = document.getElementById("ac-result-box");
+      const simPanel = document.getElementById("faultsim-panel");
+      box.style.display = "block";
+      if (move === "best") {
+        spawnConfettiBurst(simPanel);
+        box.style.background = "#e6f4ea";
+        box.style.borderColor = "#a8dab5";
+        box.style.color = "#0d652d";
+        box.textContent = "✅ Correct! Locking the Throttle Valve isolated a faulty valve sensor without venting the chamber (saved 4.5 hrs of downtime). Practice Case 4/10 complete!";
+      } else {
+        box.style.background = "#fef4e8";
+        box.style.borderColor = "#f5c2a3";
+        box.style.color = "#d83b01";
+        box.textContent = "⚠️ Coaching Tip: Helium leak rate is normal, so venting wastes 4.5 hours. Try Step A to test the valve electronically first.";
+      }
+    }
+
+    function gradeCryoRefresh(passed) {
+      const box = document.getElementById("ac-result-box");
+      const refreshPanel = document.getElementById("refresh-panel");
+      if (!passed) {
+        box.style.display = "block";
+        box.style.background = "#fef4e8";
+        box.style.borderColor = "#f5c2a3";
+        box.style.color = "#d83b01";
+        box.textContent = "⚠️ Almost! Opening roughing at 760 Torr backstreams oil/air. Crossover must be below 50 mTorr — tap 'Below 50 mTorr'!";
+        return;
+      }
+
+      if (refreshPanel) refreshPanel.style.display = "none";
+
+      // Sync live state to DFS Tracker!
+      const prevPct = adamCurriculumPct;
+      adamCurriculumPct = 92;
+      adamRenewalDone = true;
+      updateDfsTabPill(true);
+
+      // 1. Un-flip Card 3 if needed, turn Gold, sweep SVG ring & SLAM Passport Stamp + Shockwave!
+      const cryoScene = document.getElementById("gp-cryo-scene");
+      const cryoFront = document.getElementById("gp-cryo-front");
+      const cryoSeal = document.getElementById("gp-cryo-seal");
+      const cryoMed = document.getElementById("gp-med-3");
+      const cryoEmoji = document.getElementById("gp-cryo-emoji");
+      const cryoTier = document.getElementById("gp-cryo-tier");
+      const cryoSub = document.getElementById("gp-cryo-sub");
+      const cryoBackNote = document.getElementById("gp-cryo-back-note");
+
+      if (cryoScene) cryoScene.classList.remove("is-flipped");
+      if (cryoFront) {
+        cryoFront.className = "gp-face gp-face-front gold";
+        const wave = document.createElement("div");
+        wave.className = "gp-shockwave";
+        cryoFront.appendChild(wave);
+        setTimeout(() => wave.remove(), 700);
+        spawnConfettiBurst(cryoScene);
+      }
+      if (cryoMed) {
+        cryoMed.style.stroke = "#10b981";
+        cryoMed.style.strokeDashoffset = "0";
+      }
+      if (cryoEmoji) cryoEmoji.textContent = "🏅";
+      if (cryoTier) {
+        cryoTier.className = "gp-badge-tier tier-gold";
+        cryoTier.textContent = "3/3 VERIFIED";
+      }
+      if (cryoSub) cryoSub.textContent = "Renewed for 90 days";
+      if (cryoBackNote) {
+        cryoBackNote.style.borderColor = "#10b981";
+        cryoBackNote.style.color = "#065f46";
+        cryoBackNote.textContent = "✓ Refresher Passed (Active 90d)";
+      }
+      if (cryoSeal) {
+        cryoSeal.style.display = "block";
+        cryoSeal.classList.remove("slam");
+        void cryoSeal.offsetWidth;
+        cryoSeal.classList.add("slam");
+      }
+
+      // 2. Sweep Inline DFS Tracker Curriculum Ring (74% -> 92%)
+      const heroArc = document.getElementById("gp-hero-arc");
+      const nodeArc = document.getElementById("gp-node-arc");
+      const heroPct = document.getElementById("gp-hero-pct");
+      const nodePct = document.getElementById("gp-node-pct");
+      const installEta = document.getElementById("gp-install-eta");
+      const installSub = document.getElementById("gp-install-sub");
+      const topBadge = document.getElementById("ac-top-badge");
+
+      if (heroArc) heroArc.style.strokeDashoffset = (157.1 * (1 - 0.92)).toFixed(1);
+      if (nodeArc) nodeArc.style.strokeDashoffset = (125.7 * (1 - 0.92)).toFixed(1);
+
+      let p = prevPct;
+      const pTimer = setInterval(() => {
+        p += 2;
+        if (p >= 92) { p = 92; clearInterval(pTimer); }
+        if (heroPct) heroPct.textContent = `${p}%`;
+        if (nodePct) nodePct.textContent = `${p}%`;
+      }, 45);
+
+      if (installEta) {
+        installEta.style.color = "#1b6b43";
+        installEta.textContent = "All Active ✅";
+      }
+      if (installSub) {
+        installSub.textContent = "Valid for 90 days";
+      }
+      if (topBadge) {
+        topBadge.className = "ac-badge badge-green";
+        topBadge.textContent = "All Qualifications Active ✅";
+      }
+
+      box.style.display = "block";
+      box.style.background = "#e6f4ea";
+      box.style.borderColor = "#a8dab5";
+      box.style.color = "#0d652d";
+      box.textContent = "🎉 Cryo Pump renewed for 90 days! Secondary Installer curriculum jumped to 92% — no 6-day lab retake needed.";
+    }
+
+    function triggerCardAction(actionIdx) {
+      const sc = DATA[currentPersona].scenarios[currentScenarioIndex];
+      const box = document.getElementById("ac-result-box");
+      const rpPanel = document.getElementById("roleplay-panel");
+      const simPanel = document.getElementById("faultsim-panel");
+      const refreshPanel = document.getElementById("refresh-panel");
+
+      if (rpPanel) rpPanel.style.display = "none";
+      if (simPanel) simPanel.style.display = "none";
+      if (refreshPanel) refreshPanel.style.display = "none";
+
+      // Interactive 2-Min Pre-Job Check in FSE Use Case 2
+      if (sc.id === "fse_checklist" && actionIdx === 0) {
+        rpPanel.style.display = "block";
+        box.style.display = "none";
+        return;
+      }
+
+      // Playable Sustainer Fault Simulator in FSE Use Case 4
+      if (sc.id === "fse_sustainer_sim" && actionIdx === 0) {
+        simPanel.style.display = "block";
+        box.style.display = "none";
+        return;
+      }
+
+      // Interactive FSM Use Case 4 Sign-Off animates inline DFS Tracker ring (74% -> 84%)
+      if (sc.id === "fsm_ojt_signoff" && actionIdx === 0) {
+        adamCurriculumPct = Math.max(adamCurriculumPct, 84);
+        updateDfsTabPill(true);
+        const sArc = document.getElementById("signoff-dfs-arc");
+        const sPct = document.getElementById("signoff-dfs-pct");
+        const sNote = document.getElementById("signoff-dfs-note");
+        const sBox = document.getElementById("signoff-dfs-box");
+        if (sArc) sArc.style.strokeDashoffset = (157.1 * (1 - adamCurriculumPct / 100)).toFixed(1);
+        if (sPct) sPct.textContent = `${adamCurriculumPct}%`;
+        if (sNote) sNote.textContent = "✓ Recorded in JourneyHub";
+        if (sBox) spawnConfettiBurst(sBox);
+      }
+
+      // Interactive FSM Use Case 5 Cohort Pace Rebalance animates inline cohort card
+      if (sc.id === "fsm_pace_recovery" && actionIdx === 0) {
+        saraFixed = true;
+        updateDfsTabPill(true);
+        const saraTile = document.getElementById("sara-tile");
+        const saraMono = document.getElementById("sara-mono");
+        const saraSub = document.getElementById("sara-sub");
+        const saraEta = document.getElementById("sara-eta");
+        const saraRing = document.getElementById("sara-ring");
+        const cohortBox = document.getElementById("cohort-bars-box");
+        const topBadge = document.getElementById("ac-top-badge");
+        if (saraTile) saraTile.classList.remove("at-risk");
+        if (saraMono) saraMono.style.background = "linear-gradient(145deg, #2d8a5b, #1b6b43)";
+        if (saraSub) saraSub.textContent = "Fab 4 PMs assigned";
+        if (saraRing) saraRing.setAttribute("stroke", "#1e754c");
+        if (sEta_check(saraEta)) {
+          saraEta.className = "dfs-track-pill";
+          saraEta.textContent = "On Track";
+        }
+        if (cohortBox) spawnConfettiBurst(cohortBox);
+        if (topBadge) {
+          topBadge.className = "ac-badge badge-green";
+          topBadge.textContent = "9 of 9 Hires On Track";
+        }
+      }
+
+      // Interactive Skill Renewal animations in FSE Use Case 3
+      if (sc.id === "fse_passport") {
+        if (actionIdx === 0) {
+          if (refreshPanel) refreshPanel.style.display = "block";
+          box.style.display = "none";
+          return;
+        } else if (actionIdx === 1) {
+          const vacScene = document.getElementById("gp-vac-scene");
+          if (vacScene) {
+            vacScene.classList.toggle("is-flipped");
+            spawnConfettiBurst(vacScene);
+          }
+        }
+      }
+
+      const reply = sc.card.actions[actionIdx].reply;
+      box.style.display = "block";
+      box.style.background = "#e6f4ea";
+      box.style.borderColor = "#a8dab5";
+      box.style.color = "#0d652d";
+      box.textContent = reply;
+    }
+
+    function sEta_check(el) { return !!el; }
+
+    function gradeRolePlay(choice) {
+      const box = document.getElementById("ac-result-box");
+      box.style.display = "block";
+
+      if (choice === "pass") {
+        box.style.background = "#e6f4ea";
+        box.style.borderColor = "#a8dab5";
+        box.style.color = "#0d652d";
+        box.textContent = "✅ Passed (95%): Checking N2 interlock, cable torque, and Auto-Tune fixes most post-swap RF issues. Ready for Mentor M. Chen!";
+      } else if (choice === "vent") {
+        box.style.background = "#fef4e8";
+        box.style.borderColor = "#f5c2a3";
+        box.style.color = "#d83b01";
+        box.textContent = "⚠️ Coaching Tip: Don't vent the chamber first (adds 4 hrs downtime). Check external cable torque & Auto-Tune first (Option A).";
+      } else if (choice === "escalate") {
+        box.style.background = "#fef4e8";
+        box.style.borderColor = "#f5c2a3";
+        box.style.color = "#d83b01";
+        box.textContent = "⚠️ Coaching Tip: Run the 2-minute external checks (N2 interlock & Auto-Tune) before paging a Senior FSE. Try Option A.";
+      } else {
+        const custom = document.getElementById("rp-custom-ans").value.trim() || "Check coax torque and run Auto-Tune";
+        box.style.background = "#e6f4ea";
+        box.style.borderColor = "#a8dab5";
+        box.style.color = "#0d652d";
+        box.textContent = `✅ Passed (95%): "${custom}" matches BKM-4.2. Ready for Mentor M. Chen!`;
+      }
+    }
+
+    function askFollowUp(qText, aHtml) {
+      if (currentTeamsTab !== "chat") switchTeamsTab("chat");
+      const stream = document.getElementById("chat-stream");
+      const speaker = currentPersona === "fse" ? "Adam Jones (FSE)" : "John Smith (Manager)";
+
+      const userRow = document.createElement("div");
+      userRow.className = "user-msg-row";
+      userRow.innerHTML = `
+        <div class="user-bubble">
+          <div class="user-bubble-meta">${speaker} · 💬 Pull Query</div>
+          ${qText}
+        </div>
+      `;
+      stream.appendChild(userRow);
+
+      const botRow = document.createElement("div");
+      botRow.className = "bot-msg-row";
+      botRow.innerHTML = `
+        <div class="bot-avatar" title="ASCENT Onboarding Assistant">
+          <svg class="everest-svg"><use href="#everest-peak"></use></svg>
+        </div>
+        <div class="bot-followup-bubble">
+          <div style="font-size:10.5px; font-weight:800; color:#5b5fc7; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:3px;">ASCENT · Live System Lookup</div>
+          ${aHtml}
+        </div>
+      `;
+      stream.appendChild(botRow);
+      stream.scrollTo({ top: stream.scrollHeight, behavior: "smooth" });
+    }
+
+    function sendCustomQuestion() {
+      const input = document.getElementById("chat-input");
+      const raw = input.value.trim();
+      const q = raw.toLowerCase();
+      if (!q) return;
+      input.value = "";
+
+      if (currentPersona === "fse") {
+        if (q.includes("sim") || q.includes("fault") || q.includes("practice")) {
+          renderScenario(3);
+          return;
+        }
+        let ans = "📋 <strong>JourneyHub Curriculum Status:</strong> You are at <strong>" + adamCurriculumPct + "%</strong> on NovaDep Oxide CVD Secondary Installer (On Track). Remember: WBT/ILT enrollments and OJT bookings are approved by your manager John Smith.";
+        if (q.includes("tool") || q.includes("torque") || q.includes("bkm")) {
+          ans = "🧰 <strong>BKM-4.2 Quick Pull:</strong> Bring a calibrated <strong>18 in-lbs torque wrench</strong>, verify N2 purge interlock LED is green, and confirm post-PM Helium leak rate &lt; 1.0E-9 cc/s.";
+        } else if (q.includes("loto") || q.includes("safety") || q.includes("prereq")) {
+          ans = "🛡️ <strong>Safety Gate:</strong> LOTO &amp; High-Voltage Safety (WBT-101) and all prerequisite WBTs must be 100% complete before ILT lab enrollment or fab OJT.";
+        } else if (q.includes("enroll") || q.includes("book")) {
+          ans = "🔒 <strong>Role Guardrail:</strong> FSEs cannot self-enroll in WBTs/ILTs or self-book OJT. ASCENT already routed your eligibility to Manager John Smith for 1-click enrollment.";
+        }
+        askFollowUp(raw, ans);
+      } else {
+        if (q.includes("q4") || q.includes("nov 18") || q.includes("install") || q.includes("who") || q.includes("bottleneck")) {
+          renderScenario(5);
+          return;
+        }
+        let ans = "📊 <strong>Cohort Live Summary:</strong> " + (saraFixed ? "All <strong>9 of 9 trainees</strong> are now On Track for Secondary Installer." : "<strong>8 of 9 trainees</strong> are On Track; Sara Lin is 3 weeks behind pace in Bay 2 and can be moved to upcoming Fab 4 PMs.");
+        if (q.includes("travel") || q.includes("640") || q.includes("phoenix") || q.includes("cost")) {
+          ans = "💰 <strong>ROI Check:</strong> Approving $640 Phoenix travel (or $0 Local Alternate ILT-305B) avoids a 2-week waitlist stall worth ~$8,400 in Q4 contractor backfill.";
+        } else if (q.includes("sara") || q.includes("bay 2")) {
+          ans = "📉 <strong>Bay 2 Bottleneck:</strong> Bay 2 has only 1 scheduled PM through Nov 15 due to a customer qual freeze, whereas Fab 4 Bay 4 has 6 PMs with open mentor capacity.";
+        }
+        askFollowUp(raw, ans);
+      }
+    }
+
+    // Initialize
+    switchPersona("fse");
+  </script>
+</body>
+</html>
